@@ -1,0 +1,50 @@
+{
+  "name": "samuraizer",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "samuraizer": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/cli/index.ts",
+    "process": "tsx src/cli/index.ts process",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "cli",
+    "transcription",
+    "meetings",
+    "ollama",
+    "whisper",
+    "local-first"
+  ],
+  "license": "ISC",
+  "description": "CLI tool for meeting transcription and summarization",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UladzKha/samuraizer-cli.git"
+  },
+  "homepage": "https://github.com/UladzKha/samuraizer-cli#readme",
+  "bugs": {
+    "url": "https://github.com/UladzKha/samuraizer-cli/issues"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "execa": "^9.6.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

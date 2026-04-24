@@ -1,0 +1,33 @@
+# Node.js
+node_modules/
+package-lock.json
+
+# TypeScript
+*.tsbuildinfo
+
+# Build files
+dist/
+build/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.user
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Other
+*.env
+*.env.local
+/output/
