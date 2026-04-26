@@ -1,27 +1,43 @@
 # Samuraizer
 
-Local-first CLI for meeting transcription and analysis.
+Turn meeting recordings into transcripts, summaries, action items, and decisions — entirely on your machine. No cloud, no subscriptions, no data leaving your network.
 
-Samuraizer processes audio recordings and generates:
-- transcript
-- summary
-- action items
-- decisions
-- report
+![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli/main/assets/demo.gif)
 
-All processing is done locally using tools like Whisper and Ollama
+## Why Samuraizer
 
+- **Fully local.** Your recordings never leave your machine.
+- **CLI-first.** Scriptable, automatable, integrates with cron, Git hooks, Obsidian workflows.
+- **Resumable.** Crashed mid-pipeline? Re-run picks up where it left off.
+- **Model-agnostic.** Works with any Ollama-compatible LLM — pick what fits your hardware.
+- **Free.** No subscriptions, no per-minute pricing.
 
-## ✨ Features
+## 💻 System Requirements
 
-- 🎙 Transcribe audio recordings (Whisper)
-- 🧠 Generate summaries (local LLM via Ollama)
-- ✅ Extract action items
-- 📌 Extract decisions
-- ⚡ Resume processing (skip already processed steps)
-- 🔧 Simple CLI + config system
-- 🔒 Local-first (no cloud required)
+| RAM    | Recommended model       |
+| ------ | ----------------------- |
+| 8 GB   | `qwen2.5:3b`            |
+| 16 GB  | `qwen2.5:7b`            |
+| 32 GB+ | `qwen2.5:14b` (default) |
 
+Apple Silicon (M1/M2/M3/M4) and recent x86 CPUs with AVX2 are recommended.
+Whisper transcription is CPU/Metal-accelerated; LLM inference uses Ollama's defaults.
+
+## ⚙️ Prerequisites
+
+Install the required tools:
+
+- **Node.js** ≥ 20 — [nodejs.org](https://nodejs.org/)
+- **ffmpeg** — for audio processing
+- **whisper-cli** — from [whisper.cpp](https://github.com/ggerganov/whisper.cpp)
+- **Ollama** — [ollama.com](https://ollama.com/)
+
+Start Ollama and pull a model:
+
+```bash
+ollama serve
+ollama pull qwen2.5:14b
+```
 
 ## 📦 Installation
 
@@ -29,44 +45,62 @@ All processing is done locally using tools like Whisper and Ollama
 npm install -g samuraizer
 ```
 
-## ⚙️ Prerequisites
-
-Make sure you have installed:
-```bash
-Node.js >= 20
-ffmpeg
-whisper-cli (whisper.cpp)
-Ollama
-Start Ollama
-ollama serve
-ollama pull qwen2.5:14b
-```
-
 ## 🚀 Quick Start
+
 ```bash
 samuraizer init
 samuraizer process meeting.m4a
+```
+
+On a 30-minute recording this typically takes 3–5 minutes on Apple Silicon and 8–15 minutes on x86 CPUs, depending on the model.
+
+## 🧪 Commands
+
+### Process an audio file
+
+```bash
+samuraizer process meeting.m4a              # full pipeline
+samuraizer process meeting.m4a --verbose    # show detailed metadata
+samuraizer process meeting.m4a --force      # recompute all steps
+samuraizer process meeting.m4a --verbose --force
+```
+
+### Run individual steps
+
+```bash
+samuraizer normalize input.m4a output.wav   # normalize audio for Whisper
+samuraizer summarize transcript.txt         # generate summary from transcript
+samuraizer actions transcript.txt           # extract action items
+samuraizer decisions transcript.txt         # extract decisions
+```
+
+### Configuration
+
+```bash
+samuraizer init           # create default config file
+samuraizer config path    # show config file location
+samuraizer config get     # print resolved config as JSON
+```
+
+### Other
+
+```bash
+samuraizer --help
+samuraizer --version
 ```
 
 ## ⚙️ Configuration
 
 Samuraizer uses a global JSON config file.
 
-### Initialize config
-```bash
-samuraizer init
-```
-
 ### Config location
-* **macOS**: `~/Library/Application Support/samuraizer/config.json`
-* **Linux**: `~/.config/samuraizer/config.json`
-* **Windows**: `%AppData%/samuraizer/config.json`
 
-### View config
-```bash
-samuraizer config get
-```
+- **macOS**: `~/Library/Application Support/samuraizer/config.json`
+- **Linux**: `~/.config/samuraizer/config.json`
+- **Windows**: `%AppData%/samuraizer/config.json`
+
 ### Example config
+
 ```json
 {
   "model": "qwen2.5:14b",
@@ -77,7 +111,7 @@ samuraizer config get
 }
 ```
 
-### 🧩 Config fields
+### Config fields
 
 - **model** — LLM model used for analysis (summary, action items, decisions)
 - **ollamaBaseUrl** — URL where Ollama is running
@@ -85,126 +119,136 @@ samuraizer config get
 - **ffmpegCommand** — Command used for audio processing
 - **ffprobeCommand** — Command used for audio inspection
 
+## 📂 Example output
 
-## 🧪 Commands
+After processing, you'll find structured files in `output/<recording-name>/`:
 
-### Show help
-
-```bash
-samuraizer --help
 ```
-
-### Show version
-
-```bash
-samuraizer --version
-```
-
-## 🚀 Full pipeline
-
-### Process an audio recording:
-```bash
-samuraizer process meeting.m4a
-```
-
-### Show detailed metadata after processing:
-```bash
-samuraizer process meeting.m4a --verbose
-```
-
-### Recompute all steps even if outputs already exist:
-```bash
-samuraizer process meeting.m4a --force
-```
-
-### You can combine flags:
-```bash
-samuraizer process meeting.m4a --verbose --force
-```
-
-## 🎛 Individual commands
-
-### Normalize audio to Whisper-compatible WAV:
-```bash
-samuraizer normalize input.m4a output.wav
-```
-
-### Summarize a transcript file:
-```bash
-samuraizer summarize transcript.txt
-```
-
-### Extract action items from a transcript file:
-```bash
-samuraizer actions transcript.txt
-```
-
-### Extract decisions from a transcript file:
-```bash
-samuraizer decisions transcript.txt
-```
-
-
-## ⚙️ Configuration commands
-
-### Create the default config file:
-```bash
-samuraizer init
-```
-
-### Print config file path:
-```bash
-samuraizer config path
-```
-
-### Print resolved config as JSON:
-```bash
-samuraizer config get
-```
-
-
-### 📂 Output
-```json
-output/<file-name>/
+output/meeting/
   transcript.txt
   summary.txt
   action-items.json
   decisions.json
   report.txt
-  ```
+```
 
+**`summary.txt`**
 
-### 🔁 Resume Behavior
+```
+Team standup focused on Q2 roadmap and infrastructure migration.
+The frontend team will start the Next.js upgrade next week...
+```
 
-Samuraizer skips already processed steps.
+**`action-items.json`**
 
-Use `--force` to rebuild everything.
+```json
+[
+  {
+    "owner": "Alice",
+    "task": "Set up staging environment for migration testing",
+    "deadline": "by end of week"
+  },
+  {
+    "owner": "Bob",
+    "task": "Review the auth refactor PR",
+    "deadline": null
+  }
+]
+```
 
+**`decisions.json`**
 
-### ⚠️ Common Issues
-#### Ollama not running
+```json
+[
+  {
+    "decision": "Adopt Next.js 15 for the new dashboard",
+    "rationale": "Better SSR and built-in App Router support"
+  }
+]
+```
+
+## 🔁 Resume behavior
+
+Samuraizer skips steps whose output files already exist. If processing crashes or you stop it mid-pipeline, just re-run the same command — completed steps are reused.
+
+Use `--force` to recompute everything from scratch.
+
+## ⚠️ Troubleshooting
+
+### Ollama not running
+
 ```bash
 ollama serve
 ```
 
-#### ffmpeg not found
+### Ollama on a non-default port
 
-macOS:
+Update `ollamaBaseUrl` in your config:
+
+```json
+{
+  "ollamaBaseUrl": "http://127.0.0.1:11500"
+}
+```
+
+### Out of memory during analysis
+
+Switch to a smaller model:
+
+```bash
+ollama pull qwen2.5:7b
+```
+
+Then update `model` in your config to `qwen2.5:7b` (or `qwen2.5:3b` on machines with 8 GB RAM).
+
+### Model not found
+
+Make sure the model in your config is actually pulled:
+
+```bash
+ollama list
+ollama pull <model-name>
+```
+
+### `whisper-cli` not in PATH
+
+Build [whisper.cpp](https://github.com/ggerganov/whisper.cpp) and ensure the binary is on your `PATH`, or set the absolute path in `whisperCommand` in your config.
+
+### `ffmpeg` not found
+
+**macOS:**
+
 ```bash
 brew install ffmpeg
 ```
 
-Linux:
+**Linux:**
+
 ```bash
-apt install ffmpeg
+# Debian / Ubuntu
+sudo apt install ffmpeg
+
+# Arch / CachyOS
+sudo pacman -S ffmpeg
+
+# Fedora
+sudo dnf install ffmpeg
 ```
 
-### 📄 License
+**Windows:**
 
-ISC
+```powershell
+winget install Gyan.FFmpeg
+```
 
-## 🔗 Source Code
+## 📝 Changelog
 
-### Source code is available on GitHub:
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
-https://github.com/UladzKha/samuraizer-cli
+## 📄 License
+
+MIT — see [LICENSE](./LICENSE).
+
+## 🔗 Source code
+
+Available on GitHub: [github.com/UladzKha/samuraizer-cli](https://github.com/UladzKha/samuraizer-cli)

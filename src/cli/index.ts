@@ -9,12 +9,21 @@ import { processMeeting } from "../orchestrators/process-meeting.js";
 import { runTool } from "../shared/tool-definition.js";
 import { tools } from "../shared/tool-registry.js";
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(
+  readFileSync(join(__dirname, '../../package.json'), 'utf-8')
+);
+
 const program = new Command();
 
 program
     .name("samuraizer")
     .description("Transform meeting recordings into structured knowledge")
-    .version("0.0.1");
+    .version(pkg.version);
 
 program
     .command("process")

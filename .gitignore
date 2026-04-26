@@ -31,3 +31,6 @@ Thumbs.db
 *.env
 *.env.local
 /output/
+
+# Packages
+*.tgz
