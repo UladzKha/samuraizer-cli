@@ -1,6 +1,6 @@
 {
   "name": "samuraizer",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "bin": {
     "samuraizer": "./dist/cli/index.js"
@@ -10,28 +10,36 @@
     "process": "tsx src/cli/index.ts process",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20"
   },
   "keywords": [
-    "cli",
     "transcription",
-    "meetings",
-    "ollama",
+    "meeting-notes",
     "whisper",
-    "local-first"
+    "ollama",
+    "local-llm",
+    "speech-to-text",
+    "cli",
+    "self-hosted",
+    "privacy"
   ],
-  "license": "ISC",
-  "description": "CLI tool for meeting transcription and summarization",
+  "license": "MIT",
+  "description": "Local-first CLI that turns meeting recordings into transcripts, summaries, action items, and decisions",
+  "author": "Uladz Kha <UladzKha@users.noreply.github.com>",
+  "funding": "https://github.com/sponsors/UladzKha",
   "repository": {
     "type": "git",
-    "url": "https://github.com/UladzKha/samuraizer-cli.git"
+    "url": "git+https://github.com/UladzKha/samuraizer-cli.git"
   },
   "homepage": "https://github.com/UladzKha/samuraizer-cli#readme",
   "bugs": {
