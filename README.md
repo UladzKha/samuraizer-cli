@@ -2,7 +2,7 @@
 
 Turn meeting recordings into transcripts, summaries, action items, and decisions — entirely on your machine. No cloud, no subscriptions, no data leaving your network.
 
-(![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli/main/assets/demo.gif))
+(![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli/main/assets/demo.gif)
 
 ## Why Samuraizer
 
