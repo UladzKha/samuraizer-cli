@@ -34,3 +34,4 @@ Thumbs.db
 
 # Packages
 *.tgz
+.claude
