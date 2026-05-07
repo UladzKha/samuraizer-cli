@@ -1,5 +1,4 @@
 {
-
     "name": "@samuraizer/schema",
     "version": "0.1.0",
     "description": "Open JSON Schema for portable meeting outputs (transcripts, summaries, action items, decisions)",
@@ -25,13 +24,17 @@
     "files": [
         "spec",
         "README.md",
-        "LICENSE"
+        "LICENSE",
+        "dist"
     ],
     "exports": {
         ".": {
             "default": "./spec/meeting-output.schema.json"
         },
-        "./schema":{
+        "./types":{
+            "types" : "./dist/types.d.ts"
+        },
+        "./schema": {
             "default": "./spec/meeting-output.schema.json"
         },
         "./examples/minimal": {
@@ -41,7 +44,15 @@
             "default": "./spec/examples/full.json"
         }
     },
+    "scripts": {
+        "build": "node scripts/build-types.mjs",
+        "typecheck": "tsc --noEmit",
+        "prepublishOnly": "npm run build"
+    },
     "engines": {
         "node": ">=20"
+    },
+    "devDependencies": {
+        "json-schema-to-typescript": "^15.0.4"
     }
 }

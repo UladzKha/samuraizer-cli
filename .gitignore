@@ -1,12 +1,12 @@
 # Node.js
 node_modules/
-package-lock.json
 
 # TypeScript
 *.tsbuildinfo
 
-# Build files
-dist/
+# Build outputs
+# CLI dist is purely a build artifact, regenerated on every build
+packages/cli/
 build/
 
 # IDEs and editors
@@ -30,8 +30,12 @@ Thumbs.db
 # Other
 *.env
 *.env.local
+
+# Pipeline output (user data, not source)
 /output/
 
-# Packages
+# npm pack artifacts
 *.tgz
+
+# Clauide Code local settings
 .claude

@@ -1,122 +1,374 @@
 {
-  "schema_version": "0.1.0",
-  "meeting_id": "01HXR5K7P8Q3M2N4VWXYZABCDE",
-  "generated_at": "2026-05-07T14:30:00Z",
-  "source": {
-    "file_name": "q2-roadmap-review.m4a",
-    "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-    "format": "mp4,m4a",
-    "duration_sec": 1834.2,
-    "size_bytes": 31457280,
-    "sample_rate_hz": 48000,
-    "channels": 2,
-    "codec": "aac",
-    "recorded_at": "2026-05-06T10:00:00+02:00"
-  },
-  "transcript": {
-    "language": "en",
-    "text": "Alice: Welcome to the Q2 roadmap review. Bob: I think we should adopt Next.js 15 for the new dashboard. Alice: Agreed. Bob, can you set up the staging environment by end of week? Bob: Sure, I will have it ready by Friday.",
-    "segments": [
-      {
-        "id": "seg_0001",
-        "start_sec": 0.0,
-        "end_sec": 3.2,
-        "text": "Welcome to the Q2 roadmap review.",
-        "speaker_id": "p_0001",
-        "confidence": 0.96
-      },
-      {
-        "id": "seg_0002",
-        "start_sec": 3.2,
-        "end_sec": 8.5,
-        "text": "I think we should adopt Next.js 15 for the new dashboard.",
-        "speaker_id": "p_0002",
-        "confidence": 0.93
-      },
-      {
-        "id": "seg_0003",
-        "start_sec": 8.5,
-        "end_sec": 14.1,
-        "text": "Agreed. Bob, can you set up the staging environment by end of week?",
-        "speaker_id": "p_0001",
-        "confidence": 0.95
-      },
-      {
-        "id": "seg_0004",
-        "start_sec": 14.1,
-        "end_sec": 17.8,
-        "text": "Sure, I will have it ready by Friday.",
-        "speaker_id": "p_0002",
-        "confidence": 0.97
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://samuraizer.dev/schemas/meeting-output/0.1.0/meeting-output.schema.json",
+  "title": "Meeting Output",
+  "description": "Open, portable schema for meeting recordings processed into structured outputs (transcript, summary, action items, decisions). Designed to be tool-agnostic so any local-first transcription pipeline can produce or consume it.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "meeting_id",
+    "generated_at",
+    "source",
+    "transcript",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Version of this schema the document conforms to. Follows semver. Consumers MUST check this field before parsing.",
+      "const": "0.1.0"
+    },
+    "meeting_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this meeting output. ULID is RECOMMENDED (sortable by creation time, 26 chars, Crockford base32). UUIDs are also accepted.",
+      "minLength": 1,
+      "maxLength": 64,
+      "examples": ["01HXR5K7P8Q3M2N4VWXYZABCDE"]
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this document was produced, as RFC 3339 timestamp with timezone. Distinct from source.recorded_at."
+    },
+    "source": {
+      "type": "object",
+      "description": "Information about the original recording. Treat as the input side of the pipeline.",
+      "required": ["file_name", "sha256", "format"],
+      "additionalProperties": false,
+      "properties": {
+        "file_name": {
+          "type": "string",
+          "description": "Basename of the source file as seen by the user. Path-stripped to avoid leaking filesystem layout.",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "description": "SHA-256 hash of the source audio file content (lowercase hex). Anchors chain of custody: any downstream artifact can be tied back to the exact bytes that produced it.",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "format": {
+          "type": "string",
+          "description": "Container/codec name as reported by ffprobe (e.g. 'mp4,m4a', 'wav', 'mp3').",
+          "minLength": 1
+        },
+        "duration_sec": {
+          "type": "number",
+          "description": "Duration of the source audio in seconds.",
+          "minimum": 0
+        },
+        "size_bytes": {
+          "type": "integer",
+          "description": "Size of the source file in bytes.",
+          "minimum": 0
+        },
+        "sample_rate_hz": {
+          "type": "integer",
+          "description": "Audio sample rate in Hz, e.g. 44100, 48000.",
+          "minimum": 1
+        },
+        "channels": {
+          "type": "integer",
+          "description": "Number of audio channels.",
+          "minimum": 1
+        },
+        "codec": {
+          "type": "string",
+          "description": "Audio codec name as reported by ffprobe (e.g. 'aac', 'pcm_s16le')."
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the recording was captured, if known (RFC 3339). May come from file mtime, container metadata, or user input. Distinct from generated_at."
+        }
       }
-    ]
-  },
-  "summary": {
-    "text": "Team reviewed the Q2 roadmap. Decided to adopt Next.js 15 for the new dashboard based on better SSR support. Bob committed to setting up the staging environment by Friday."
-  },
-  "action_items": [
-    {
-      "id": "act_0001",
-      "text": "Set up the staging environment for the new dashboard",
-      "assignee": "Bob",
-      "due_date": "by Friday",
-      "due_date_iso": "2026-05-08",
-      "status": "open",
-      "source_segment_ref": ["seg_0003", "seg_0004"]
-    }
-  ],
-  "decisions": [
-    {
-      "id": "dec_0001",
-      "text": "Adopt Next.js 15 for the new dashboard",
-      "context": "Better SSR support and built-in App Router",
-      "source_segment_ref": ["seg_0002", "seg_0003"]
-    }
-  ],
-  "participants": [
-    {
-      "id": "p_0001",
-      "name": "Alice",
-      "role": "host"
     },
-    {
-      "id": "p_0002",
-      "name": "Bob",
-      "role": "engineer"
-    }
-  ],
-  "provenance": {
-    "producer": {
-      "name": "samuraizer",
-      "version": "0.2.0"
+    "transcript": {
+      "type": "object",
+      "description": "Time-aligned speech-to-text output.",
+      "required": ["language", "segments", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "BCP 47 language tag detected or specified for the recording (e.g. 'en', 'ru', 'en-US'). Use 'und' if undetermined."
+        },
+        "text": {
+          "type": "string",
+          "description": "Full transcript as plain text. Convenience field; canonical content lives in segments."
+        },
+        "segments": {
+          "type": "array",
+          "description": "Ordered list of transcript segments. The unit of granularity for source_segment_ref pointers from action_items and decisions.",
+          "items": { "$ref": "#/$defs/transcriptSegment" }
+        }
+      }
     },
-    "pipeline": {
-      "transcription": {
-        "engine": "whisper.cpp",
-        "engine_version": "1.7.4",
-        "model_name": "ggml-large-v3",
-        "model_sha256": "1b9f3f8e4a2c6b7d8e9f0a1b2c3d4e5f6789abcdef0123456789abcdef012345"
-      },
-      "summary": {
-        "runtime": "ollama",
-        "runtime_version": "0.5.7",
-        "model_name": "qwen2.5:14b",
-        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
-        "temperature": 0.2
-      },
-      "action_items": {
-        "runtime": "ollama",
-        "runtime_version": "0.5.7",
-        "model_name": "qwen2.5:14b",
-        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
-        "temperature": 0
-      },
-      "decisions": {
-        "runtime": "ollama",
-        "runtime_version": "0.5.7",
-        "model_name": "qwen2.5:14b",
-        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
-        "temperature": 0
+    "summary": {
+      "type": "object",
+      "description": "Free-form meeting summary produced by an LLM.",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Summary as plain text or lightweight Markdown.",
+          "minLength": 1
+        }
+      }
+    },
+    "action_items": {
+      "type": "array",
+      "description": "Concrete tasks identified in the meeting that require follow-up.",
+      "items": { "$ref": "#/$defs/actionItem" }
+    },
+    "decisions": {
+      "type": "array",
+      "description": "Final decisions agreed upon during the meeting.",
+      "items": { "$ref": "#/$defs/decision" }
+    },
+    "participants": {
+      "type": "array",
+      "description": "Known meeting participants. May be empty if speaker identification was not performed.",
+      "items": { "$ref": "#/$defs/participant" }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Chain of custody: which tools, models, and configuration produced this document. Critical for trust and reproducibility. Consumers can use this to verify or reproduce results.",
+      "required": ["producer", "pipeline"],
+      "additionalProperties": false,
+      "properties": {
+        "producer": {
+          "type": "object",
+          "description": "The software that generated this document.",
+          "required": ["name", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Producer identifier, e.g. 'samuraizer'.",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "description": "Producer semver, e.g. '0.2.0'.",
+              "minLength": 1
+            }
+          }
+        },
+        "pipeline": {
+          "type": "object",
+          "description": "Per-stage tool and model identification. Each stage is optional so that partial pipelines (e.g. transcript-only) are valid.",
+          "additionalProperties": false,
+          "properties": {
+            "transcription": { "$ref": "#/$defs/transcriptionProvenance" },
+            "summary": { "$ref": "#/$defs/llmProvenance" },
+            "action_items": { "$ref": "#/$defs/llmProvenance" },
+            "decisions": { "$ref": "#/$defs/llmProvenance" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "transcriptSegment": {
+      "type": "object",
+      "description": "A single time-aligned chunk of transcript.",
+      "required": ["id", "start_sec", "end_sec", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier for this segment within the document. Recommended format: 'seg_NNNN' zero-padded. Used as target for source_segment_ref.",
+          "pattern": "^seg_[0-9]+$"
+        },
+        "start_sec": {
+          "type": "number",
+          "description": "Segment start time in seconds from the beginning of the recording.",
+          "minimum": 0
+        },
+        "end_sec": {
+          "type": "number",
+          "description": "Segment end time in seconds. Must be greater than or equal to start_sec.",
+          "minimum": 0
+        },
+        "text": {
+          "type": "string",
+          "description": "Transcribed text for this segment.",
+          "minLength": 1
+        },
+        "speaker_id": {
+          "type": ["string", "null"],
+          "description": "Reference to participants[].id if diarization was performed. Null if speaker is unknown."
+        },
+        "confidence": {
+          "type": ["number", "null"],
+          "description": "Optional ASR confidence score in [0, 1]. Null if the engine does not expose it.",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "is_approximate_timing": {
+          "type": "boolean",
+          "description": "True if start_sec/end_sec are not real timecodes from the ASR engine but were synthesized (e.g. line-based fallback). Default false. Allows consumers to know when timing is reliable.",
+          "default": false
+        }
+      }
+    },
+    "actionItem": {
+      "type": "object",
+      "description": "A task to be done after the meeting.",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier within the document. Recommended format: 'act_NNNN'.",
+          "pattern": "^act_[0-9]+$"
+        },
+        "text": {
+          "type": "string",
+          "description": "The task description.",
+          "minLength": 1
+        },
+        "assignee": {
+          "type": ["string", "null"],
+          "description": "Free-form name or handle. May reference participants[].name when speaker resolution exists, but is not constrained to it (LLMs may name people not present)."
+        },
+        "due_date": {
+          "type": ["string", "null"],
+          "description": "Original phrasing of the deadline as it appeared in the meeting (e.g. 'by end of week', 'next Friday'). Preserves the user's intent even when not parseable to a calendar date."
+        },
+        "due_date_iso": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Normalized deadline as ISO 8601 date (YYYY-MM-DD), if it could be resolved. Null when due_date is fuzzy or absent."
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle status. Defaults to 'open' for newly extracted items. Forward-compatible field; consumers may extend.",
+          "enum": ["open", "in_progress", "done", "cancelled"],
+          "default": "open"
+        },
+        "source_segment_ref": {
+          "type": "array",
+          "description": "Transcript segment IDs that support this action item. Provides chain of evidence: each item can be traced back to the audio segments that produced it. May be empty if the LLM did not provide grounding.",
+          "items": {
+            "type": "string",
+            "pattern": "^seg_[0-9]+$"
+          },
+          "default": []
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "description": "A confirmed decision reached during the meeting.",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier within the document. Recommended format: 'dec_NNNN'.",
+          "pattern": "^dec_[0-9]+$"
+        },
+        "text": {
+          "type": "string",
+          "description": "The decision itself, stated concisely.",
+          "minLength": 1
+        },
+        "context": {
+          "type": ["string", "null"],
+          "description": "Optional rationale or surrounding context that explains why the decision was made."
+        },
+        "source_segment_ref": {
+          "type": "array",
+          "description": "Transcript segment IDs that support this decision. Same role as in action_items.",
+          "items": {
+            "type": "string",
+            "pattern": "^seg_[0-9]+$"
+          },
+          "default": []
+        }
+      }
+    },
+    "participant": {
+      "type": "object",
+      "description": "A meeting participant. Used to anchor speaker_id references in transcript.segments.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier within the document. Recommended format: 'p_NNNN' or a diarizer-provided label (e.g. 'SPEAKER_00').",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name. May be a real name, an inferred name, or a placeholder like 'Speaker 1'.",
+          "minLength": 1
+        },
+        "role": {
+          "type": ["string", "null"],
+          "description": "Optional role in the meeting (e.g. 'host', 'engineer', 'PM')."
+        }
+      }
+    },
+    "transcriptionProvenance": {
+      "type": "object",
+      "description": "Identification of the ASR engine and model used.",
+      "required": ["engine"],
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "type": "string",
+          "description": "ASR engine identifier (e.g. 'whisper.cpp', 'whisper', 'vosk').",
+          "minLength": 1
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "Engine version string, when available."
+        },
+        "model_name": {
+          "type": "string",
+          "description": "Logical model name (e.g. 'ggml-large-v3', 'whisper-large-v3')."
+        },
+        "model_sha256": {
+          "type": "string",
+          "description": "SHA-256 of the model weights file. Recommended for reproducibility, optional in 0.1.0.",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "llmProvenance": {
+      "type": "object",
+      "description": "Identification of the LLM and runtime used for a generation step.",
+      "required": ["runtime", "model_name"],
+      "additionalProperties": false,
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "description": "LLM runtime identifier (e.g. 'ollama', 'llama.cpp', 'openai-compatible').",
+          "minLength": 1
+        },
+        "runtime_version": {
+          "type": "string",
+          "description": "Runtime version, when available."
+        },
+        "model_name": {
+          "type": "string",
+          "description": "Model identifier as used by the runtime (e.g. 'qwen2.5:14b', 'llama3.1:8b').",
+          "minLength": 1
+        },
+        "model_digest": {
+          "type": "string",
+          "description": "Runtime-reported content digest for the model (e.g. Ollama's sha256 digest). Anchors which exact weights were used."
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Sampling temperature used for this step.",
+          "minimum": 0,
+          "maximum": 2
+        }
       }
     }
   }
