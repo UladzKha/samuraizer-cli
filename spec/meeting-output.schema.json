@@ -1,0 +1,123 @@
+{
+  "schema_version": "0.1.0",
+  "meeting_id": "01HXR5K7P8Q3M2N4VWXYZABCDE",
+  "generated_at": "2026-05-07T14:30:00Z",
+  "source": {
+    "file_name": "q2-roadmap-review.m4a",
+    "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "format": "mp4,m4a",
+    "duration_sec": 1834.2,
+    "size_bytes": 31457280,
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "codec": "aac",
+    "recorded_at": "2026-05-06T10:00:00+02:00"
+  },
+  "transcript": {
+    "language": "en",
+    "text": "Alice: Welcome to the Q2 roadmap review. Bob: I think we should adopt Next.js 15 for the new dashboard. Alice: Agreed. Bob, can you set up the staging environment by end of week? Bob: Sure, I will have it ready by Friday.",
+    "segments": [
+      {
+        "id": "seg_0001",
+        "start_sec": 0.0,
+        "end_sec": 3.2,
+        "text": "Welcome to the Q2 roadmap review.",
+        "speaker_id": "p_0001",
+        "confidence": 0.96
+      },
+      {
+        "id": "seg_0002",
+        "start_sec": 3.2,
+        "end_sec": 8.5,
+        "text": "I think we should adopt Next.js 15 for the new dashboard.",
+        "speaker_id": "p_0002",
+        "confidence": 0.93
+      },
+      {
+        "id": "seg_0003",
+        "start_sec": 8.5,
+        "end_sec": 14.1,
+        "text": "Agreed. Bob, can you set up the staging environment by end of week?",
+        "speaker_id": "p_0001",
+        "confidence": 0.95
+      },
+      {
+        "id": "seg_0004",
+        "start_sec": 14.1,
+        "end_sec": 17.8,
+        "text": "Sure, I will have it ready by Friday.",
+        "speaker_id": "p_0002",
+        "confidence": 0.97
+      }
+    ]
+  },
+  "summary": {
+    "text": "Team reviewed the Q2 roadmap. Decided to adopt Next.js 15 for the new dashboard based on better SSR support. Bob committed to setting up the staging environment by Friday."
+  },
+  "action_items": [
+    {
+      "id": "act_0001",
+      "text": "Set up the staging environment for the new dashboard",
+      "assignee": "Bob",
+      "due_date": "by Friday",
+      "due_date_iso": "2026-05-08",
+      "status": "open",
+      "source_segment_ref": ["seg_0003", "seg_0004"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "dec_0001",
+      "text": "Adopt Next.js 15 for the new dashboard",
+      "context": "Better SSR support and built-in App Router",
+      "source_segment_ref": ["seg_0002", "seg_0003"]
+    }
+  ],
+  "participants": [
+    {
+      "id": "p_0001",
+      "name": "Alice",
+      "role": "host"
+    },
+    {
+      "id": "p_0002",
+      "name": "Bob",
+      "role": "engineer"
+    }
+  ],
+  "provenance": {
+    "producer": {
+      "name": "samuraizer",
+      "version": "0.2.0"
+    },
+    "pipeline": {
+      "transcription": {
+        "engine": "whisper.cpp",
+        "engine_version": "1.7.4",
+        "model_name": "ggml-large-v3",
+        "model_sha256": "1b9f3f8e4a2c6b7d8e9f0a1b2c3d4e5f6789abcdef0123456789abcdef012345"
+      },
+      "summary": {
+        "runtime": "ollama",
+        "runtime_version": "0.5.7",
+        "model_name": "qwen2.5:14b",
+        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
+        "temperature": 0.2
+      },
+      "action_items": {
+        "runtime": "ollama",
+        "runtime_version": "0.5.7",
+        "model_name": "qwen2.5:14b",
+        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
+        "temperature": 0
+      },
+      "decisions": {
+        "runtime": "ollama",
+        "runtime_version": "0.5.7",
+        "model_name": "qwen2.5:14b",
+        "model_digest": "sha256:7cdf5a0187d5c8f6c4b9a1e2d3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2",
+        "temperature": 0
+      }
+    }
+  }
+}
