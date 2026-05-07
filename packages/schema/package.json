@@ -1,0 +1,47 @@
+{
+
+    "name": "@samuraizer/schema",
+    "version": "0.1.0",
+    "description": "Open JSON Schema for portable meeting outputs (transcripts, summaries, action items, decisions)",
+    "license": "MIT",
+    "author": "Uladz Kha <UladzKha@users.noreply.github.com>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/UladzKha/samuraizer-cli.git",
+        "directory": "packages/schema"
+    },
+    "homepage": "https://github.com/UladzKha/samuraizer-cli/tree/main/packages/schema#readme",
+    "bugs": {
+        "url": "https://github.com/UladzKha/samuraizer-cli/issues"
+    },
+    "keywords": [
+        "json-schema",
+        "meeting",
+        "transcript",
+        "interoperability",
+        "open-standard",
+        "local-first"
+    ],
+    "files": [
+        "spec",
+        "README.md",
+        "LICENSE"
+    ],
+    "exports": {
+        ".": {
+            "default": "./spec/meeting-output.schema.json"
+        },
+        "./schema":{
+            "default": "./spec/meeting-output.schema.json"
+        },
+        "./examples/minimal": {
+            "default": "./spec/examples/minimal.json"
+        },
+        "./examples/full": {
+            "default": "./spec/examples/full.json"
+        }
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}
