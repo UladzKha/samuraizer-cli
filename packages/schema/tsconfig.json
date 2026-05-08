@@ -6,10 +6,15 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "noEmit": true,
-        "types": ["node"],
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
-        "allowImportingTsExtensions": false
+        "types": ["node"],
+        "allowSyntheticDefaultImports": true
     },
-    "include": ["scripts/**/*.ts"]
+    "include": ["src/**/*.ts"]
 }
