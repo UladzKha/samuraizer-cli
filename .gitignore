@@ -6,7 +6,7 @@ node_modules/
 
 # Build outputs
 # CLI dist is purely a build artifact, regenerated on every build
-packages/cli/
+packages/cli/dist/
 build/
 
 # IDEs and editors
