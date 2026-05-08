@@ -64,10 +64,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     await saveMeta(paths, meta);
 
     // Transcribe
-    let transcription: { text: string; segments: TranscriptSegment[]; sourceAudioPath: string; transcriptPath: string };
+    let transcription: { text: string; segments: TranscriptSegment[]; sourceAudioPath: string; transcriptPath: string; language?: string };
     if (!input.force && await fileExists(paths.transcriptJsonPath)) {
         console.log("Skipping transcription (cached).");
-        const cached = await readJson<{ text: string; segments: TranscriptSegment[]; sourceAudioPath: string }>(paths.transcriptJsonPath);
+        const cached = await readJson<{ text: string; segments: TranscriptSegment[]; sourceAudioPath: string; language?: string }>(paths.transcriptJsonPath);
         transcription = { ...cached, transcriptPath: paths.transcriptTextPath };
     } else {
         console.log("Transcribing audio...");
@@ -85,6 +85,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
                     text: transcription.text,
                     segments: transcription.segments,
                     sourceAudioPath: transcription.sourceAudioPath,
+                    language: transcription.language,
                 },
                 null,
                 2,

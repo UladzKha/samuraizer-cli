@@ -22,6 +22,7 @@ const outputSchema = z.object({
     segments: z.array(segmentSchema),
     transcriptPath: z.string().min(1),
     sourceAudioPath: z.string().min(1),
+    language: z.string().optional(),
 });
 
 type Input = z.infer<typeof inputSchema>;
@@ -47,6 +48,7 @@ export const transcribeAudioTool: ToolDefinition<Input, Output> = {
             segments: transcript.segments,
             transcriptPath: `${outputPrefix}.txt`,
             sourceAudioPath: transcript.sourceAudioPath,
+            language: transcript.language,
         };
     },
 };

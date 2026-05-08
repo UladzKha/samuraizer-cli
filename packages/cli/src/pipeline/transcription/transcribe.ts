@@ -53,6 +53,20 @@ export async function transcribeWithWhisper({
         );
     }
 
+    const result = (parsed as Record<string, unknown>).result;
+    let detectedLanguage: string | undefined;
+    if (
+        typeof result === "object" &&
+        result !== null &&
+        "language" in result &&
+        typeof (result as Record<string, unknown>).language === "string"
+    ) {
+        const lang = ((result as Record<string, unknown>).language as string).trim();
+        if (lang.length > 0) {
+            detectedLanguage = lang.toLowerCase();
+        }
+    }
+
     const rawSegments = (parsed as Record<string, unknown>).transcription as unknown[];
 
     if (rawSegments.length === 0) {
@@ -96,5 +110,6 @@ export async function transcribeWithWhisper({
         text,
         segments,
         sourceAudioPath: audioPath,
+        language: detectedLanguage,
     };
 }
