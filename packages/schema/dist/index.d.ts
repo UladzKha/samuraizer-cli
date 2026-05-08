@@ -14,7 +14,7 @@ export type { MeetingOutput } from "../dist/types.js";
 /**
  * The raw JSON Schema document. Useful for tools that want to compile
  * their own validator (e.g. with a different ajv configuration) or
- * generate language blindings beyond TypeScript.
+ * generate language bindings beyond TypeScript.
  */
 export { schema };
 //# sourceMappingURL=index.d.ts.map
