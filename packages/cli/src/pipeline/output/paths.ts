@@ -15,6 +15,7 @@ export type OutputPaths = {
     decisionsTextPath: string;
     decisionsJsonPath: string;
     reportMarkdownPath: string;
+    meetingJsonPath: string;
 };
 
 export function buildOutputPaths(inputFile: ValidatedInputFile, outputRootDir: string = path.resolve("output")): OutputPaths {
@@ -34,5 +35,6 @@ export function buildOutputPaths(inputFile: ValidatedInputFile, outputRootDir: s
         decisionsTextPath: path.join(runDir, "decisions.txt"),
         decisionsJsonPath: path.join(runDir, "decisions.json"),
         reportMarkdownPath: path.join(runDir, "report.md"),
+        meetingJsonPath: path.join(runDir, "meeting.json"),
     };
 }

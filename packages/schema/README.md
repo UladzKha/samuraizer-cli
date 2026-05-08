@@ -72,7 +72,7 @@ import type {
 ### Import the raw schema
 
 ```ts
-import schema from "@samuraizer/schema";
+import { schema } from "@samuraizer/schema";
 // schema is the parsed JSON Schema object — pass it to your own validator,
 // generate forms from it, register it with a tool that accepts JSON Schema, etc.
 ```

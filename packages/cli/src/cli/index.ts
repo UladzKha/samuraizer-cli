@@ -66,6 +66,7 @@ program
             console.log(`Action items: ${result.paths.actionItemsTextPath}`);
             console.log(`Decisions:    ${result.paths.decisionsTextPath}`);
             console.log(`Report:       ${result.paths.reportMarkdownPath}`);
+            console.log(`Meeting JSON: ${result.paths.meetingJsonPath}`);
             console.log(`Meta:         ${result.paths.metaFilePath}`);
 
             if (options.verbose) {

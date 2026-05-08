@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { validate } from "@samuraizer/schema";
+import { buildMeetingOutput } from "../pipeline/output/build-meeting-output.js";
+import { sha256File } from "../lib/sha256-file.js";
 import { ensureFfmpeg } from "../checks/ffmpeg.js";
 import { ensureFfprobe } from "../checks/ffprobe.js";
 import { ensureOllama } from "../checks/ollama.js";
@@ -31,6 +36,14 @@ export type ProcessMeetingResult = {
     paths: OutputPaths;
     meta: RunMeta;
 };
+
+function readPackageVersion(): string {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const pkg = JSON.parse(
+        readFileSync(path.join(here, "../../package.json"), "utf-8"),
+    ) as { version: string };
+    return pkg.version;
+}
 
 export async function processMeeting(input: ProcessMeetingInput): Promise<ProcessMeetingResult> {
     const validatedFile = await validateInputFile(input.inputPath);
@@ -192,6 +205,42 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     meta.output.reportMarkdownPath = paths.reportMarkdownPath;
     meta.report = { generated: true };
     meta.status = "report_generated";
+    await saveMeta(paths, meta);
+
+    // Generate meeting.json (schema-validated)
+    console.log("Generating meeting.json...");
+
+    const sourceSha256 = await sha256File(validatedFile.resolvedPath);
+    const producerVersion = readPackageVersion();
+
+    const meetingOutput = buildMeetingOutput({
+        meta,
+        transcript: {
+            text: transcription.text,
+            segments: transcription.segments,
+            sourceAudioPath: transcription.sourceAudioPath,
+            language: transcription.language,
+        },
+        summary: summaryResult,
+        actionItems: actionItemsResult,
+        decisions: decisionsResult,
+        sourceSha256,
+        producerVersion,
+    });
+
+    const validationResult = validate(meetingOutput);
+    if (!validationResult.valid) {
+        const errorLines = validationResult.errors
+            .map((e) => `  ${e.path}: ${e.message} (${e.keyword})`)
+            .join("\n");
+        throw new Error(
+            `Generated meeting.json fails schema validation. This is a bug in the mapper.\n${errorLines}`,
+        );
+    }
+
+    await writeFile(paths.meetingJsonPath, JSON.stringify(validationResult.data, null, 2), "utf-8");
+    meta.output.meetingJsonPath = paths.meetingJsonPath;
+    meta.status = "meeting_output_generated";
     await saveMeta(paths, meta);
 
     return { paths, meta };

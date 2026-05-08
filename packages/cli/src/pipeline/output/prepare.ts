@@ -26,6 +26,7 @@ export type RunMeta = {
         decisionsTextPath?: string;
         decisionsJsonPath?: string;
         reportMarkdownPath?: string;
+        meetingJsonPath?: string;
     };
     transcription?: {
         engine: "whisper.cpp";
@@ -56,7 +57,8 @@ export type RunMeta = {
         | "summarized"
         | "action_items_extracted"
         | "decisions_extracted"
-        | "report_generated";
+        | "report_generated"
+        | "meeting_output_generated";
 };
 
 export type PreparedOutput = {
