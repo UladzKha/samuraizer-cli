@@ -17,7 +17,7 @@ export async function transcribeWithWhisper({
     language,
     whisperCommand,
 }: TranscribeWithWhisperInput): Promise<Transcript> {
-    const args = ["-m", modelPath, "-f", audioPath, "-otxt", "-of", outputPrefix, "-nt", "-l", language];
+    const args = ["-m", modelPath, "-f", audioPath, "-oj", "-of", outputPrefix, "-l", language];
 
     try {
         await runCommand(whisperCommand, args);
@@ -26,31 +26,90 @@ export async function transcribeWithWhisper({
         throw new Error(`Failed to transcribe audio.\n${message}`);
     }
 
-    const transcriptPath = `${outputPrefix}.txt`;
+    const jsonPath = `${outputPrefix}.json`;
 
-    let transcriptText: string;
+    let rawJson: string;
     try {
-        transcriptText = await readFile(transcriptPath, "utf-8");
+        rawJson = await readFile(jsonPath, "utf-8");
     } catch {
-        throw new Error(`whisper-cli finished but transcript file was not found: ${transcriptPath}`);
+        throw new Error(`whisper-cli finished but JSON output was not found: ${jsonPath}`);
     }
 
-    const cleanedText = transcriptText.trim();
-    await writeFile(transcriptPath, cleanedText, "utf-8");
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(rawJson);
+    } catch (parseError) {
+        throw new Error(`Failed to parse whisper-cli JSON output: ${jsonPath}\n${parseError}`);
+    }
+
+    if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        !("transcription" in parsed) ||
+        !Array.isArray((parsed as Record<string, unknown>).transcription)
+    ) {
+        throw new Error(
+            `whisper-cli JSON has invalid shape (missing or non-array \`transcription\` field): ${jsonPath}`,
+        );
+    }
+
+    const result = (parsed as Record<string, unknown>).result;
+    let detectedLanguage: string | undefined;
+    if (
+        typeof result === "object" &&
+        result !== null &&
+        "language" in result &&
+        typeof (result as Record<string, unknown>).language === "string"
+    ) {
+        const lang = ((result as Record<string, unknown>).language as string).trim();
+        if (lang.length > 0) {
+            detectedLanguage = lang.toLowerCase();
+        }
+    }
+
+    const rawSegments = (parsed as Record<string, unknown>).transcription as unknown[];
+
+    if (rawSegments.length === 0) {
+        throw new Error(`whisper-cli returned no transcription segments for: ${audioPath}`);
+    }
+
+    const segments: TranscriptSegment[] = rawSegments.map((seg, i) => {
+        if (
+            typeof seg !== "object" ||
+            seg === null ||
+            !("offsets" in seg) ||
+            !("text" in seg) ||
+            typeof (seg as Record<string, unknown>).text !== "string"
+        ) {
+            throw new Error(`whisper-cli JSON segment has invalid shape at index ${i}: ${jsonPath}`);
+        }
+
+        const offsets = (seg as Record<string, unknown>).offsets;
+        if (
+            typeof offsets !== "object" ||
+            offsets === null ||
+            typeof (offsets as Record<string, unknown>).from !== "number" ||
+            typeof (offsets as Record<string, unknown>).to !== "number"
+        ) {
+            throw new Error(`whisper-cli JSON segment has invalid shape at index ${i}: ${jsonPath}`);
+        }
+
+        const { from, to } = offsets as { from: number; to: number };
+        return {
+            startSec: from / 1000,
+            endSec: to / 1000,
+            text: ((seg as Record<string, unknown>).text as string).trim(),
+        };
+    });
+
+    const text = segments.map((s) => s.text).join("\n");
+    const txtPath = `${outputPrefix}.txt`;
+    await writeFile(txtPath, text, "utf-8");
 
     return {
-        text: cleanedText,
-        segments: parseSegmentsFromPlainText(cleanedText),
+        text,
+        segments,
         sourceAudioPath: audioPath,
+        language: detectedLanguage,
     };
-}
-
-function parseSegmentsFromPlainText(text: string): TranscriptSegment[] {
-    if (!text.trim()) return [];
-
-    return text
-        .split(/\n+/)
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line, index) => ({ startSec: index, endSec: index, text: line }));
 }
