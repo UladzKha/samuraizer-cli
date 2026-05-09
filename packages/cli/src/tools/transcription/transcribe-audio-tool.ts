@@ -11,7 +11,7 @@ const segmentSchema = z.object({
 
 const inputSchema = z.object({
     audioPath: z.string().min(1),
-    outputDir: z.string().min(1),
+    runDir: z.string().min(1),
     modelPath: z.string().min(1),
     language: z.string().min(1),
     whisperCommand: z.string().min(1),
@@ -34,7 +34,7 @@ export const transcribeAudioTool: ToolDefinition<Input, Output> = {
     inputSchema,
     outputSchema,
     async execute(input) {
-        const outputPrefix = path.join(input.outputDir, "transcript");
+        const outputPrefix = path.join(input.runDir, "transcript");
         const transcript = await transcribeWithWhisper({
             audioPath: input.audioPath,
             outputPrefix,

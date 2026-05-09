@@ -8,7 +8,7 @@ export const configSchema = z.object({
     language: z.string().min(1),
     ffmpegCommand: z.string().min(1),
     ffprobeCommand: z.string().min(1),
-    outputDir: z.string().min(1).optional(),
+    meetingsDir: z.string().min(1),
 });
 
 export const partialConfigSchema = configSchema.partial();

@@ -48,7 +48,7 @@ program
 
             const result = await processMeeting({
                 inputPath: input,
-                outputRootDir: config.outputDir,
+                outputRootDir: config.meetingsDir,
                 model: config.model,
                 ollamaBaseUrl: config.ollamaBaseUrl,
                 whisperCommand: config.whisperCommand,

@@ -86,7 +86,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
         console.log("Transcribing audio...");
         transcription = await runTool(tools.transcribe_audio, {
             audioPath: normalized.normalizedAudioPath,
-            outputDir: paths.runDir,
+            runDir: paths.runDir,
             modelPath: input.whisperModelPath,
             language: input.language,
             whisperCommand: input.whisperCommand,
