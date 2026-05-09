@@ -39,13 +39,14 @@ export const summarizeTranscriptionTool: ToolDefinition<Input, Output> = {
             messages: [
                 {
                     role: "system",
-                    content: "You are a meeting analyst. Extract action items from transcripts. Return ONLY valid JSON. Do not ask questions. Do not offer further help."
+                    content: "You are a meeting analyst. Generate a concise, readable plain-text summary of meeting transcripts. Do not return JSON. Do not ask questions. Do not offer further help."
                 },
                 {
                     role: "user",
                     content: buildPrompt(input.transcriptText),
                 }
             ],
+            temperature: 0,
         });
         return { summary };
     },
