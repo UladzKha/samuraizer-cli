@@ -11,9 +11,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build",
-    "prepublishOnly": "npm run typecheck && npm run build",
-    "mcp": "tsx src/cli/index.ts mcp",
-    "mcp:dist": "node dist/cli/index.js mcp"
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "exports": {
     "./shared/tool-definition": {
@@ -70,7 +68,6 @@
     "url": "https://github.com/UladzKha/samuraizer-cli/issues"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
     "@samuraizer/schema": "^0.1.0",
     "commander": "^14.0.3",
     "execa": "^9.6.1",

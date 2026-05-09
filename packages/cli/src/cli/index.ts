@@ -8,7 +8,6 @@ import { getConfigFilePath } from "../config/paths.js";
 import { processMeeting } from "../orchestrators/process-meeting.js";
 import { runTool } from "../shared/tool-definition.js";
 import { tools } from "../shared/tool-registry.js";
-import { startMcpServer } from "../mcp/server.js";
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -185,18 +184,6 @@ configCommand
         try {
             const config = await loadConfig();
             console.log(JSON.stringify(config, null, 2));
-        } catch (error) {
-            console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-            process.exitCode = 1;
-        }
-    });
-
-program
-    .command("mcp")
-    .description("Start the MCP server (stdio transport)")
-    .action(async () => {
-        try {
-            await startMcpServer();
         } catch (error) {
             console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
             process.exitCode = 1;
