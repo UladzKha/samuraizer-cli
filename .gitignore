@@ -5,8 +5,8 @@ node_modules/
 *.tsbuildinfo
 
 # Build outputs
-# CLI dist is purely a build artifact, regenerated on every build
-packages/cli/dist/
+# Package dist directories are build artifacts, regenerated on every build
+packages/*/dist/
 build/
 
 # IDEs and editors

@@ -1,9 +1,10 @@
+#!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { createContext } from '../tools/context.js';
-import { runTool } from '../shared/tool-definition.js';
-import { tools } from '../shared/tool-registry.js';
+import { createContext } from '@samuraizer/cli/tools/context';
+import { runTool } from '@samuraizer/cli/shared/tool-definition';
+import { tools } from '@samuraizer/cli/shared/tool-registry';
 import path from 'node:path';
 
 const server = new McpServer(
@@ -188,7 +189,7 @@ server.registerTool(
     async ({ filePath, model }) => {
         const ctx = await createContext();
         try {
-            const { processMeeting } = await import('../orchestrators/process-meeting.js');
+            const { processMeeting } = await import('@samuraizer/cli/orchestrators/process-meeting');
             const result = await processMeeting({
                 inputPath: filePath,
                 meetingsDir: ctx.config.meetingsDir,
@@ -218,3 +219,5 @@ export async function startMcpServer() {
     await server.connect(transport);
     process.stderr.write('Samuraizer MCP server started and listening for requests...\n');
 }
+
+await startMcpServer();

@@ -11,9 +11,29 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build",
-    "prepublishOnly": "npm run typecheck && npm run build",
-    "mcp": "tsx src/cli/index.ts mcp",
-    "mcp:dist": "node dist/cli/index.js mcp"
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "exports": {
+    "./shared/tool-definition": {
+      "types": "./dist/shared/tool-definition.d.ts",
+      "import": "./dist/shared/tool-definition.js",
+      "default": "./dist/shared/tool-definition.js"
+    },
+    "./shared/tool-registry": {
+      "types": "./dist/shared/tool-registry.d.ts",
+      "import": "./dist/shared/tool-registry.js",
+      "default": "./dist/shared/tool-registry.js"
+    },
+    "./tools/context": {
+      "types": "./dist/tools/context.d.ts",
+      "import": "./dist/tools/context.js",
+      "default": "./dist/tools/context.js"
+    },
+    "./orchestrators/process-meeting": {
+      "types": "./dist/orchestrators/process-meeting.d.ts",
+      "import": "./dist/orchestrators/process-meeting.js",
+      "default": "./dist/orchestrators/process-meeting.js"
+    }
   },
   "files": [
     "dist",
@@ -48,7 +68,6 @@
     "url": "https://github.com/UladzKha/samuraizer-cli/issues"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
     "@samuraizer/schema": "^0.1.0",
     "commander": "^14.0.3",
     "execa": "^9.6.1",
