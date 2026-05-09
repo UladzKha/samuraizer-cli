@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createContext } from '../tools/context.js';
 import { runTool } from '../shared/tool-definition.js';
 import { tools } from '../shared/tool-registry.js';
+import path from 'node:path';
 
 const server = new McpServer(
     {
@@ -63,7 +64,7 @@ server.registerTool(
         try {
             const result = await runTool(tools.transcribe_audio, {
                 audioPath: filePath,
-                outputDir: ctx.config.outputDir ?? 'output',
+                runDir: path.join(ctx.config.meetingsDir, path.basename(filePath, path.extname(filePath))),
                 modelPath: ctx.config.whisperModelPath,
                 language: ctx.config.language,
                 whisperCommand: ctx.config.whisperCommand,
@@ -190,7 +191,7 @@ server.registerTool(
             const { processMeeting } = await import('../orchestrators/process-meeting.js');
             const result = await processMeeting({
                 inputPath: filePath,
-                outputRootDir: ctx.config.outputDir,
+                meetingsDir: ctx.config.meetingsDir,
                 model: model ?? ctx.config.model,
                 ollamaBaseUrl: ctx.config.ollamaBaseUrl,
                 whisperCommand: ctx.config.whisperCommand,

@@ -66,8 +66,8 @@ export type PreparedOutput = {
     meta: RunMeta;
 };
 
-export async function prepareOutput(inputFile: ValidatedInputFile, outputRootDir?: string): Promise<PreparedOutput> {
-    const paths = buildOutputPaths(inputFile, outputRootDir);
+export async function prepareOutput(inputFile: ValidatedInputFile, meetingsDir: string): Promise<PreparedOutput> {
+    const paths = buildOutputPaths(inputFile, meetingsDir);
 
     await mkdir(paths.runDir, { recursive: true });
 

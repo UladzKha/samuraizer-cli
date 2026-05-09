@@ -48,7 +48,7 @@ program
 
             const result = await processMeeting({
                 inputPath: input,
-                outputRootDir: config.outputDir,
+                meetingsDir: config.meetingsDir,
                 model: config.model,
                 ollamaBaseUrl: config.ollamaBaseUrl,
                 whisperCommand: config.whisperCommand,
@@ -60,14 +60,7 @@ program
             });
 
             console.log("\nDone.");
-            console.log(`Output dir:   ${result.paths.runDir}`);
-            console.log(`Transcript:   ${result.paths.transcriptTextPath}`);
-            console.log(`Summary:      ${result.paths.summaryTextPath}`);
-            console.log(`Action items: ${result.paths.actionItemsTextPath}`);
-            console.log(`Decisions:    ${result.paths.decisionsTextPath}`);
-            console.log(`Report:       ${result.paths.reportMarkdownPath}`);
-            console.log(`Meeting JSON: ${result.paths.meetingJsonPath}`);
-            console.log(`Meta:         ${result.paths.metaFilePath}`);
+            console.log(`All files saved to: ${result.paths.runDir}`);
 
             if (options.verbose) {
                 console.log("\nMeta:", JSON.stringify(result.meta, null, 2));

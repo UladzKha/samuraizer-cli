@@ -2,7 +2,7 @@ import path from "node:path";
 import type { ValidatedInputFile } from "../audio/validate-input.js";
 
 export type OutputPaths = {
-    outputRootDir: string;
+    meetingsDir: string;
     runDir: string;
     metaFilePath: string;
     normalizedAudioPath: string;
@@ -18,11 +18,11 @@ export type OutputPaths = {
     meetingJsonPath: string;
 };
 
-export function buildOutputPaths(inputFile: ValidatedInputFile, outputRootDir: string = path.resolve("output")): OutputPaths {
-    const runDir = path.join(outputRootDir, inputFile.baseName);
+export function buildOutputPaths(inputFile: ValidatedInputFile, meetingsDir: string): OutputPaths {
+    const runDir = path.join(meetingsDir, inputFile.baseName);
 
     return {
-        outputRootDir,
+        meetingsDir,
         runDir,
         metaFilePath: path.join(runDir, "meta.json"),
         normalizedAudioPath: path.join(runDir, "normalized.wav"),

@@ -40,7 +40,7 @@ function readEnvOverrides(): Partial<SamuraizerConfig> {
     if (process.env.SAMURAIZER_LANGUAGE) env.language = process.env.SAMURAIZER_LANGUAGE;
     if (process.env.SAMURAIZER_FFMPEG_COMMAND) env.ffmpegCommand = process.env.SAMURAIZER_FFMPEG_COMMAND;
     if (process.env.SAMURAIZER_FFPROBE_COMMAND) env.ffprobeCommand = process.env.SAMURAIZER_FFPROBE_COMMAND;
-    if (process.env.SAMURAIZER_OUTPUT_DIR) env.outputDir = process.env.SAMURAIZER_OUTPUT_DIR;
+    if (process.env.SAMURAIZER_MEETINGS_DIR) env.meetingsDir = process.env.SAMURAIZER_MEETINGS_DIR;
     return env;
 }
 
