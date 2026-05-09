@@ -191,7 +191,7 @@ server.registerTool(
             const { processMeeting } = await import('../orchestrators/process-meeting.js');
             const result = await processMeeting({
                 inputPath: filePath,
-                outputRootDir: ctx.config.meetingsDir,
+                meetingsDir: ctx.config.meetingsDir,
                 model: model ?? ctx.config.model,
                 ollamaBaseUrl: ctx.config.ollamaBaseUrl,
                 whisperCommand: ctx.config.whisperCommand,

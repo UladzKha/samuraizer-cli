@@ -21,7 +21,7 @@ import type { TranscriptSegment } from "../pipeline/transcription/types.js";
 
 export type ProcessMeetingInput = {
     inputPath: string;
-    outputRootDir?: string;
+    meetingsDir: string;
     model: string;
     ollamaBaseUrl: string;
     whisperCommand: string;
@@ -47,8 +47,7 @@ function readPackageVersion(): string {
 
 export async function processMeeting(input: ProcessMeetingInput): Promise<ProcessMeetingResult> {
     const validatedFile = await validateInputFile(input.inputPath);
-    const outputRootDir = input.outputRootDir ?? path.dirname(validatedFile.resolvedPath);
-    const { paths, meta } = await prepareOutput(validatedFile, outputRootDir);
+    const { paths, meta } = await prepareOutput(validatedFile, input.meetingsDir);
 
     await ensureFfmpeg(input.ffmpegCommand);
     await ensureFfprobe(input.ffprobeCommand);
