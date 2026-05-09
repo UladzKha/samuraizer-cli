@@ -32,7 +32,7 @@ export async function callOllama({
         stream: false,
         options: {
             num_ctx: 16384,
-            ...(temperature !== undefined && { options: { temperature } }),
+            ...(temperature !== undefined && { temperature }),
         },
         ...(format && { format }),
     };
