@@ -1,11 +1,15 @@
 #!/usr/bin/env node
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { createContext } from '@samuraizer/cli/tools/context';
 import { runTool } from '@samuraizer/cli/shared/tool-definition';
 import { tools } from '@samuraizer/cli/shared/tool-registry';
 import path from 'node:path';
+import { FsMeetingsStore } from './lib/meetings-store/fs-store.js';
+import { listMeetingsHandler } from './query/list-meetings.js';
+import { getMeetingHandler } from './query/get-meeting.js';
+import { listMeetingResources, readMeetingResource } from './query/meeting-resource.js';
 
 const server = new McpServer(
     {
@@ -212,6 +216,57 @@ server.registerTool(
             };
         }
     }
+);
+
+server.registerTool(
+  'list_meetings',
+  {
+    description: 'List all processed meetings, sorted newest first. Optionally limit results.',
+    inputSchema: {
+      limit: z.number().int().positive().optional().describe('Maximum number of meetings to return.'),
+    },
+  },
+  async ({ limit }) => {
+    const ctx = await createContext();
+    const store = new FsMeetingsStore(ctx.config.meetingsDir);
+    return listMeetingsHandler(store, { limit });
+  },
+);
+
+server.registerTool(
+  'get_meeting',
+  {
+    description: 'Retrieve the full processed output for a specific meeting by id.',
+    inputSchema: {
+      id: z.string().min(1).describe('The meeting id (ULID).'),
+    },
+  },
+  async ({ id }) => {
+    const ctx = await createContext();
+    const store = new FsMeetingsStore(ctx.config.meetingsDir);
+    return getMeetingHandler(store, { id });
+  },
+);
+
+server.registerResource(
+  'meeting',
+  new ResourceTemplate('meeting://{id}', {
+    list: async () => {
+      const ctx = await createContext();
+      const store = new FsMeetingsStore(ctx.config.meetingsDir);
+      return listMeetingResources(store);
+    },
+  }),
+  {
+    description: 'A single processed meeting, accessible by its ULID.',
+    mimeType: 'application/json',
+  },
+  async (uri, variables) => {
+    const ctx = await createContext();
+    const store = new FsMeetingsStore(ctx.config.meetingsDir);
+    const id = String(variables.id);
+    return readMeetingResource(store, uri, id);
+  },
 );
 
 export async function startMcpServer() {
