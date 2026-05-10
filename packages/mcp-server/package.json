@@ -12,19 +12,28 @@
   "bin": {
     "samuraizer-mcp": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "postbuild": "chmod +x dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@samuraizer/schema": "^0.1.0",
     "@samuraizer/cli": "^0.2.0",
+    "@samuraizer/schema": "^0.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@types/node": "^25.6.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
   }
 }
