@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { MeetingsStore } from '../lib/meetings-store/types.js';
-import type { MeetingOutput } from '@samuraizer/schema';
+import type { MeetingOutput } from 'memnex-spec';
 import { getMeetingHandler } from './get-meeting.js';
 
 function makeMeeting(overrides: Partial<MeetingOutput> = {}): MeetingOutput {

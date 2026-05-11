@@ -1,6 +1,6 @@
 {
   "name": "@samuraizer/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "exports": {
     ".": {
@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@samuraizer/cli": "^0.2.0",
-    "@samuraizer/schema": "^0.1.0",
+    "@samuraizer/cli": "^0.3.0",
+    "memnex-spec": "^0.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

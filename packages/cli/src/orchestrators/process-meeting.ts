@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { validate } from "@samuraizer/schema";
+import { validate } from "memnex-spec";
 import { buildMeetingOutput } from "../pipeline/output/build-meeting-output.js";
 import { sha256File } from "../lib/sha256-file.js";
 import { ensureFfmpeg } from "../checks/ffmpeg.js";

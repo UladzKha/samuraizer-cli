@@ -9,8 +9,8 @@
  */
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { validate } from '@samuraizer/schema';
-import type { MeetingOutput } from '@samuraizer/schema';
+import { validate } from 'memnex-spec';
+import type { MeetingOutput } from 'memnex-spec';
 import type { MeetingsStore, MeetingSummary } from './types.js';
 
 const SUMMARY_PREVIEW_LENGTH = 200;

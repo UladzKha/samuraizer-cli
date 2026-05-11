@@ -1,5 +1,7 @@
 # Snippet for root README.md
 
+> **Reference implementation.** Samuraizer is the reference implementation of the [memnex specification](https://github.com/UladzKha/memnex) — an open standard for portable meeting outputs (transcripts, summaries, action items, decisions).
+
 ## Recommended placement
 
 Insert as a new section **between "Why Samuraizer" and "💻 System Requirements"**. This puts it in a position where:
