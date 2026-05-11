@@ -1,4 +1,6 @@
 import { z } from "zod";
+import os from "node:os";
+import path from "node:path";
 
 export const configSchema = z.object({
     model: z.string().min(1),
@@ -8,7 +10,7 @@ export const configSchema = z.object({
     language: z.string().min(1),
     ffmpegCommand: z.string().min(1),
     ffprobeCommand: z.string().min(1),
-    meetingsDir: z.string().min(1),
+    meetingsDir: z.string().min(1).default(path.join(os.homedir(), ".samuraizer", "meetings")),
 });
 
 export const partialConfigSchema = configSchema.partial();

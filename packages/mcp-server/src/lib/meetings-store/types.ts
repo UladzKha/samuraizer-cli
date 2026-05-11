@@ -1,4 +1,4 @@
-import type { MeetingOutput } from '@samuraizer/schema';
+import type { MeetingOutput } from 'memnex-spec';
 
 /**
  * Lightweight summary of a meeting, suitable for list views.

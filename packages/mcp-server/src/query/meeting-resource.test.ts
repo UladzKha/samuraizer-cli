@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { MeetingsStore, MeetingSummary } from '../lib/meetings-store/types.js';
-import type { MeetingOutput } from '@samuraizer/schema';
+import type { MeetingOutput } from 'memnex-spec';
 import { listMeetingResources, readMeetingResource } from './meeting-resource.js';
 
 function makeSummary(overrides: Partial<MeetingSummary> = {}): MeetingSummary {

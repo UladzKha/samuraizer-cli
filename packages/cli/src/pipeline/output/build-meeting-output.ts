@@ -1,6 +1,6 @@
 import path from "node:path";
 import { ulid } from "ulid";
-import type { MeetingOutput } from "@samuraizer/schema/types";
+import type { MeetingOutput } from "memnex-spec/types";
 import type { ActionItemsResult } from "../analysis/action-items/types.js";
 import type { DecisionsResult } from "../analysis/decisions/types.js";
 import type { SummaryResult } from "../analysis/summary/types.js";
@@ -18,11 +18,11 @@ export type BuildMeetingOutputInput = {
 };
 
 /**
- * Build a meeting-output document conforming to @samuraizer/schema v0.1.0.
+ * Build a meeting-output document conforming to the memnex specification v0.1.
  *
  * Pure function: no I/O, no side effects. The caller is responsible for
  * computing the source SHA-256, reading the producer version, validating
- * the result via @samuraizer/schema, and writing the JSON to disk.
+ * the result via memnex-spec, and writing the JSON to disk.
  */
 export function buildMeetingOutput(input: BuildMeetingOutputInput): MeetingOutput {
     const { meta, transcript, summary, actionItems, decisions, sourceSha256, producerVersion } = input;

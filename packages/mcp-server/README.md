@@ -211,11 +211,11 @@ Listing resources returns one entry per meeting in `meetingsDir`. Reading a reso
 
 All meeting JSON conforms to the open Samuraizer meeting-output schema, which describes meeting structure, transcript segments, summaries, action items, decisions, and provenance metadata.
 
-The schema and its specification live in the [`@samuraizer/schema`](https://github.com/UladzKha/samuraizer-cli/tree/main/packages/schema) package within the monorepo:
+The schema and its specification live in the [`memnex-spec`](https://github.com/UladzKha/memnex) package:
 
-- **JSON Schema** (Draft 2020-12): [`spec/meeting-output.schema.json`](https://github.com/UladzKha/samuraizer-cli/blob/main/packages/schema/spec/meeting-output.schema.json)
-- **Human-readable specification**: [`spec/SPEC.md`](https://github.com/UladzKha/samuraizer-cli/blob/main/packages/schema/spec/SPEC.md)
-- **Examples**: [`spec/examples/`](https://github.com/UladzKha/samuraizer-cli/tree/main/packages/schema/spec/examples)
+- **JSON Schema** (Draft 2020-12): [`spec/meeting-output.schema.json`](https://github.com/UladzKha/memnex/blob/main/packages/memnex-spec-js/spec/meeting-output.schema.json)
+- **Human-readable specification**: [`spec/SPEC.md`](https://github.com/UladzKha/memnex/blob/main/spec/SPEC.md)
+- **Examples**: [`spec/examples/`](https://github.com/UladzKha/memnex/tree/main/packages/memnex-spec-js/spec/examples)
 
 ## Troubleshooting
 
