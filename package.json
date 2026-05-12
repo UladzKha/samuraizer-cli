@@ -1,61 +1,18 @@
 {
-  "name": "samuraizer",
-  "version": "0.2.0",
-  "type": "module",
-  "bin": {
-    "samuraizer": "./dist/cli/index.js"
-  },
-  "scripts": {
-    "dev": "tsx src/cli/index.ts",
-    "process": "tsx src/cli/index.ts process",
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "prepack": "npm run build",
-    "prepublishOnly": "npm run typecheck && npm run build",
-    "mcp": "tsx src/cli/index.ts mcp",
-    "mcp:dist": "node dist/cli/index.js mcp"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md"
-  ],
-  "engines": {
-    "node": ">=20"
-  },
-  "keywords": [
-    "transcription",
-    "meeting-notes",
-    "whisper",
-    "ollama",
-    "local-llm",
-    "speech-to-text",
-    "cli",
-    "self-hosted",
-    "privacy"
-  ],
-  "license": "MIT",
-  "description": "Local-first CLI that turns meeting recordings into transcripts, summaries, action items, and decisions",
-  "author": "Uladz Kha <UladzKha@users.noreply.github.com>",
-  "funding": "https://github.com/sponsors/UladzKha",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/UladzKha/samuraizer-cli.git"
-  },
-  "homepage": "https://github.com/UladzKha/samuraizer-cli#readme",
-  "bugs": {
-    "url": "https://github.com/UladzKha/samuraizer-cli/issues"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "commander": "^14.0.3",
-    "execa": "^9.6.1",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@types/node": "^25.5.0",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
-  }
+    "name": "samuraizer-monorepo",
+    "private": true,
+    "version": "0.0.0",
+    "description": "Samuraizer monorepo: CLI and meeting output schema",
+    "license": "MIT",
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces --if-present",
+        "typecheck": "npm run typecheck --workspaces --if-present",
+        "test": "npm run test --workspaces --if-present"
+    },
+    "engines": {
+        "node": ">=20"
+    }
 }
