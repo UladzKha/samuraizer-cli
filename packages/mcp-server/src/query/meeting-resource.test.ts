@@ -17,7 +17,7 @@ function makeSummary(overrides: Partial<MeetingSummary> = {}): MeetingSummary {
 
 function makeMeeting(id: string): MeetingOutput {
   return {
-    schema_version: '0.1.0',
+    schema_version: '0.2.0',
     meeting_id: id,
     generated_at: '2026-05-09T10:00:00Z',
     source: {

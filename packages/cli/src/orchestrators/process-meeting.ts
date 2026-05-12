@@ -9,6 +9,7 @@ import { ensureFfmpeg } from "../checks/ffmpeg.js";
 import { ensureFfprobe } from "../checks/ffprobe.js";
 import { ensureOllama } from "../checks/ollama.js";
 import { ensureWhisperCli } from "../checks/whisper.js";
+import { detectWhisperCppVersion, detectOllamaVersion } from "../lib/version-detection.js";
 import { probeAudio } from "../pipeline/audio/probe.js";
 import { validateInputFile } from "../pipeline/audio/validate-input.js";
 import { prepareOutput, type RunMeta } from "../pipeline/output/prepare.js";
@@ -53,6 +54,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     await ensureFfprobe(input.ffprobeCommand);
     await ensureWhisperCli(input.whisperCommand);
     await ensureOllama(input.ollamaBaseUrl);
+
+    // Best-effort version detection for provenance. Null on failure.
+    const whisperVersion = await detectWhisperCppVersion(input.whisperCommand);
+    const ollamaVersion = await detectOllamaVersion();
 
     // Probe source audio
     meta.input.audioMetadata = await probeAudio(validatedFile.resolvedPath, input.ffprobeCommand);
@@ -109,6 +114,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     meta.output.transcriptJsonPath = paths.transcriptJsonPath;
     meta.transcription = {
         engine: "whisper.cpp",
+        ...(whisperVersion !== null && { engineVersion: whisperVersion }),
         modelPath: input.whisperModelPath,
         textLength: transcription.text.length,
     };
@@ -134,7 +140,12 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     }
     meta.output.summaryTextPath = paths.summaryTextPath;
     meta.output.summaryJsonPath = paths.summaryJsonPath;
-    meta.summary = { model: input.model, textLength: summaryResult.summary.length };
+    meta.summary = {
+        runtime: "ollama",
+        ...(ollamaVersion !== null && { runtimeVersion: ollamaVersion }),
+        model: input.model,
+        textLength: summaryResult.summary.length,
+    };
     meta.status = "summarized";
     await saveMeta(paths, meta);
 
@@ -156,7 +167,12 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     }
     meta.output.actionItemsTextPath = paths.actionItemsTextPath;
     meta.output.actionItemsJsonPath = paths.actionItemsJsonPath;
-    meta.actionItems = { model: input.model, count: actionItemsResult.items.length };
+    meta.actionItems = {
+        runtime: "ollama",
+        ...(ollamaVersion !== null && { runtimeVersion: ollamaVersion }),
+        model: input.model,
+        count: actionItemsResult.items.length,
+    };
     meta.status = "action_items_extracted";
     await saveMeta(paths, meta);
 
@@ -178,7 +194,12 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     }
     meta.output.decisionsTextPath = paths.decisionsTextPath;
     meta.output.decisionsJsonPath = paths.decisionsJsonPath;
-    meta.decisions = { model: input.model, count: decisionsResult.items.length };
+    meta.decisions = {
+        runtime: "ollama",
+        ...(ollamaVersion !== null && { runtimeVersion: ollamaVersion }),
+        model: input.model,
+        count: decisionsResult.items.length,
+    };
     meta.status = "decisions_extracted";
     await saveMeta(paths, meta);
 
@@ -208,6 +229,12 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     // Generate meeting.json (schema-validated)
     console.log("Generating meeting.json...");
+
+    // Snapshot pipeline configuration for provenance
+    meta.pipelineConfig = {
+        languageHint: input.language,
+        outputStages: ["summary", "action_items", "decisions"],
+    };
 
     const sourceSha256 = await sha256File(validatedFile.resolvedPath);
     const producerVersion = readPackageVersion();
