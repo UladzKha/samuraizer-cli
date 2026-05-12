@@ -20,7 +20,7 @@ afterEach(async () => {
 /** Build a minimal valid MeetingOutput with overrides. */
 function buildMeeting(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: '0.1.0',
+    schema_version: '0.2.0',
     meeting_id: '01HXR5K7P8Q3M2N4VWXYZABCDE',
     generated_at: '2026-05-09T10:00:00Z',
     source: {

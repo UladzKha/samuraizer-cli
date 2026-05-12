@@ -28,7 +28,7 @@ export function buildMeetingOutput(input: BuildMeetingOutputInput): MeetingOutpu
     const { meta, transcript, summary, actionItems, decisions, sourceSha256, producerVersion } = input;
 
     return {
-        schema_version: "0.1.0",
+        schema_version: "0.2.0",
         meeting_id: ulid(),
         generated_at: new Date().toISOString(),
 
@@ -49,6 +49,9 @@ export function buildMeetingOutput(input: BuildMeetingOutputInput): MeetingOutpu
         })),
 
         provenance: buildProvenance(meta, summary, actionItems, decisions, producerVersion),
+        ...(meta.pipelineConfig !== undefined && {
+            pipeline_config: buildPipelineConfig(meta),
+        }),
     };
 }
 
@@ -100,6 +103,10 @@ function buildProvenance(
     const transcriptionModelName = meta.transcription
         ? path.basename(meta.transcription.modelPath)
         : undefined;
+    const transcriptionEngineVersion = meta.transcription?.engineVersion;
+    const ollamaVersion = meta.summary?.runtimeVersion
+        ?? meta.actionItems?.runtimeVersion
+        ?? meta.decisions?.runtimeVersion;
 
     return {
         producer: {
@@ -109,20 +116,33 @@ function buildProvenance(
         pipeline: {
             transcription: {
                 engine: "whisper.cpp",
+                ...(transcriptionEngineVersion !== undefined && { engine_version: transcriptionEngineVersion }),
                 ...(transcriptionModelName !== undefined && { model_name: transcriptionModelName }),
             },
             summary: {
                 runtime: "ollama",
+                ...(ollamaVersion !== undefined && { runtime_version: ollamaVersion }),
                 model_name: summary.model,
             },
             action_items: {
                 runtime: "ollama",
+                ...(ollamaVersion !== undefined && { runtime_version: ollamaVersion }),
                 model_name: actionItems.model,
             },
             decisions: {
                 runtime: "ollama",
+                ...(ollamaVersion !== undefined && { runtime_version: ollamaVersion }),
                 model_name: decisions.model,
             },
         },
+    };
+}
+
+function buildPipelineConfig(meta: RunMeta): NonNullable<MeetingOutput["pipeline_config"]> {
+    const cfg = meta.pipelineConfig!;
+    return {
+        language_hint: cfg.languageHint,
+        output_stages: cfg.outputStages,
+        chunking: { strategy: "none" },
     };
 }

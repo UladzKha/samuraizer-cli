@@ -1,6 +1,6 @@
 {
   "name": "@samuraizer/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "bin": {
     "samuraizer": "./dist/cli/index.js"
@@ -70,7 +70,7 @@
   "dependencies": {
     "commander": "^14.0.3",
     "execa": "^9.6.1",
-    "memnex-spec": "^0.1.0",
+    "memnex-spec": "^0.2.0",
     "ulid": "^2.4.0",
     "zod": "^4.3.6"
   },

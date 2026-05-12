@@ -30,24 +30,35 @@ export type RunMeta = {
     };
     transcription?: {
         engine: "whisper.cpp";
+        engineVersion?: string;
         modelPath: string;
         language?: string;
         textLength: number;
     };
     summary?: {
+        runtime: "ollama";
+        runtimeVersion?: string;
         model: string;
         textLength: number;
     };
     actionItems?: {
+        runtime: "ollama";
+        runtimeVersion?: string;
         model: string;
         count: number;
     };
     decisions?: {
+        runtime: "ollama";
+        runtimeVersion?: string;
         model: string;
         count: number;
     };
     report?: {
         generated: boolean;
+    };
+    pipelineConfig?: {
+        languageHint?: string;
+        outputStages: Array<"summary" | "action_items" | "decisions" | "participants">;
     };
     status:
         | "initialized"
