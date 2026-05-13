@@ -37,6 +37,6 @@ Thumbs.db
 # npm pack artifacts
 *.tgz
 
-# Clauide Code local settings
+# Claude Code local settings
 .claude
 CLAUDE.md
