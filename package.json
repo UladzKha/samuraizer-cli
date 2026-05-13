@@ -2,7 +2,7 @@
     "name": "samuraizer-monorepo",
     "private": true,
     "version": "0.0.0",
-    "description": "Samuraizer monorepo: CLI and meeting output schema",
+    "description": "Samuraizer monorepo: local-first meeting CLI + MCP server. Reference implementation of memnex.",
     "license": "MIT",
     "workspaces": [
         "packages/*"
