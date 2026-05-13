@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] - 2026-05-13
+
+- Added package-specific README (visible on npm package page). Previously the npm page showed "This package does not have a README"; root repo README was the only source of CLI documentation.
+- Fixed `bin.samuraizer` manifest path: removed leading `./` prefix so the field matches what `npm pkg fix` auto-normalizes the published tarball to.
+- No runtime code changes; output behavior identical to 0.4.0.
+
 ## [0.4.0] - 2026-05-12
 
 - Output format conforms to memnex specification v0.2 (schema_version "0.2.0")
