@@ -2,8 +2,6 @@
 
 Turn meeting recordings into transcripts, summaries, action items, and decisions — entirely on your machine. No cloud, no subscriptions, no data leaving your network.
 
-![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli/main/assets/demo.gif)
-
 > **Reference implementation.** Samuraizer is the reference implementation of the [memnex specification](https://github.com/UladzKha/memnex) — an open standard for portable meeting outputs (transcripts, summaries, action items, decisions). All outputs conform to memnex v0.2, including a full provenance chain.
 
 ## Why Samuraizer
