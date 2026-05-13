@@ -2,7 +2,7 @@
 
 Local-first CLI that turns meeting recordings into transcripts, summaries, action items, and decisions — entirely on your machine. No cloud, no subscriptions, no data leaving your network.
 
-![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli//main/packages/cli/assets/demo.gif)
+![Samuraizer demo](https://raw.githubusercontent.com/UladzKha/samuraizer-cli/main/packages/cli/assets/demo.gif)
 
 > **Reference implementation of the [memnex specification](https://github.com/UladzKha/memnex).** All outputs conform to memnex v0.2, including a full provenance chain.
 
