@@ -15,6 +15,7 @@ const inputSchema = z.object({
     modelPath: z.string().min(1),
     language: z.string().min(1),
     whisperCommand: z.string().min(1),
+    whisperDevice: z.union([z.number(), z.string()]).optional(),
 });
 
 const outputSchema = z.object({
@@ -41,6 +42,7 @@ export const transcribeAudioTool: ToolDefinition<Input, Output> = {
             modelPath: input.modelPath,
             language: input.language,
             whisperCommand: input.whisperCommand,
+            whisperDevice: input.whisperDevice,
         });
 
         return {

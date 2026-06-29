@@ -37,6 +37,7 @@ function readEnvOverrides(): Partial<SamuraizerConfig> {
     if (process.env.SAMURAIZER_OLLAMA_BASE_URL) env.ollamaBaseUrl = process.env.SAMURAIZER_OLLAMA_BASE_URL;
     if (process.env.SAMURAIZER_WHISPER_COMMAND) env.whisperCommand = process.env.SAMURAIZER_WHISPER_COMMAND;
     if (process.env.SAMURAIZER_WHISPER_MODEL_PATH) env.whisperModelPath = process.env.SAMURAIZER_WHISPER_MODEL_PATH;
+    if (process.env.SAMURAIZER_WHISPER_DEVICE !== undefined) env.whisperDevice = process.env.SAMURAIZER_WHISPER_DEVICE;
     if (process.env.SAMURAIZER_LANGUAGE) env.language = process.env.SAMURAIZER_LANGUAGE;
     if (process.env.SAMURAIZER_FFMPEG_COMMAND) env.ffmpegCommand = process.env.SAMURAIZER_FFMPEG_COMMAND;
     if (process.env.SAMURAIZER_FFPROBE_COMMAND) env.ffprobeCommand = process.env.SAMURAIZER_FFPROBE_COMMAND;

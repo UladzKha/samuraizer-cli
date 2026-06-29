@@ -27,6 +27,7 @@ export type ProcessMeetingInput = {
     ollamaBaseUrl: string;
     whisperCommand: string;
     whisperModelPath: string;
+    whisperDevice?: number | string;
     language: string;
     ffmpegCommand: string;
     ffprobeCommand: string;
@@ -94,6 +95,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
             modelPath: input.whisperModelPath,
             language: input.language,
             whisperCommand: input.whisperCommand,
+            ...(input.whisperDevice !== undefined && { whisperDevice: input.whisperDevice }),
         });
         await writeFile(
             paths.transcriptJsonPath,

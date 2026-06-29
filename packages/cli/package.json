@@ -10,6 +10,8 @@
     "process": "tsx src/cli/index.ts process",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepack": "npm run build",
     "prepublishOnly": "npm run typecheck && npm run build"
   },
@@ -77,6 +79,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
   }
 }

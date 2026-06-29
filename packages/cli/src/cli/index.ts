@@ -52,6 +52,7 @@ program
                 ollamaBaseUrl: config.ollamaBaseUrl,
                 whisperCommand: config.whisperCommand,
                 whisperModelPath: config.whisperModelPath,
+                ...(config.whisperDevice !== undefined && { whisperDevice: config.whisperDevice }),
                 language: config.language,
                 ffmpegCommand: config.ffmpegCommand,
                 ffprobeCommand: config.ffprobeCommand,

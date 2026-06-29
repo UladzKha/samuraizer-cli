@@ -8,7 +8,17 @@ export type TranscribeWithWhisperInput = {
     modelPath: string;
     language: string;
     whisperCommand: string;
+    whisperDevice?: number | string;
 };
+
+// Returns only the vars to *add* to the env; execa's extendEnv:true merges them with process.env.
+// Uses explicit !== checks because whisperDevice of 0 is valid but falsy — if (whisperDevice) would skip it.
+export function buildWhisperEnvOverride(whisperDevice: number | string | undefined): Record<string, string> {
+    if (whisperDevice !== undefined && whisperDevice !== null && whisperDevice !== "") {
+        return { CUDA_VISIBLE_DEVICES: String(whisperDevice) };
+    }
+    return {};
+}
 
 export async function transcribeWithWhisper({
     audioPath,
@@ -16,11 +26,21 @@ export async function transcribeWithWhisper({
     modelPath,
     language,
     whisperCommand,
+    whisperDevice,
 }: TranscribeWithWhisperInput): Promise<Transcript> {
-    const args = ["-m", modelPath, "-f", audioPath, "-oj", "-of", outputPrefix, "-l", language];
+    const args = [
+        "-m", modelPath,
+         "-f", audioPath,
+          "-oj", "-of", outputPrefix,
+           "-l", language,
+           "-sns", "-mc", "0", "-et", "2.6"
+        ];
+
+    const envOverride = buildWhisperEnvOverride(whisperDevice);
+    const hasOverride = Object.keys(envOverride).length > 0;
 
     try {
-        await runCommand(whisperCommand, args);
+        await runCommand(whisperCommand, args, hasOverride ? envOverride : undefined);
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown whisper-cli error";
         throw new Error(`Failed to transcribe audio.\n${message}`);

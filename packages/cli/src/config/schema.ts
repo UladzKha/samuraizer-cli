@@ -7,6 +7,8 @@ export const configSchema = z.object({
     ollamaBaseUrl: z.string().url(),
     whisperCommand: z.string().min(1),
     whisperModelPath: z.string().min(1),
+    // Value semantics match CUDA_VISIBLE_DEVICES: device index (0, 1), comma list ("0,1"), or GPU UUID
+    whisperDevice: z.union([z.number(), z.string()]).optional(),
     language: z.string().min(1),
     ffmpegCommand: z.string().min(1),
     ffprobeCommand: z.string().min(1),
