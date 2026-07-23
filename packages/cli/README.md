@@ -98,10 +98,13 @@ Samuraizer uses a global JSON config file.
 ### Example config
 
 ```json
+
 {
-  "model": "qwen2.5:14b",
+  "model": "qwen3.5:14b",
   "ollamaBaseUrl": "http://127.0.0.1:11434",
   "whisperCommand": "whisper-cli",
+  "whisperModelPath": "/absolute/path/to/ggml-model.bin",
+  "language": "en",
   "ffmpegCommand": "ffmpeg",
   "ffprobeCommand": "ffprobe"
 }
@@ -112,8 +115,27 @@ Samuraizer uses a global JSON config file.
 - **model** — LLM model used for analysis (summary, action items, decisions)
 - **ollamaBaseUrl** — URL where Ollama is running
 - **whisperCommand** — Command used to run Whisper
+- **whisperDevice** *(optional)* — GPU/device whisper-cli runs on. Accepts a device index (`0`, `1`), a comma-separated list (`"0,1"`), or a GPU UUID; value semantics match `CUDA_VISIBLE_DEVICES`. Omit to use the default device.
 - **ffmpegCommand** — Command used for audio processing
 - **ffprobeCommand** — Command used for audio inspection
+
+Every config field can also be overridden with an environment variable, e.g. `SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a`.
+
+### Selecting a GPU
+
+If your machine has multiple GPUs, pin whisper transcription to a specific one:
+
+```json
+{
+  "whisperDevice": 1
+}
+```
+
+Or per-run, without editing the config:
+
+```bash
+SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a
+```
 
 ## 📂 Example output
 
@@ -195,7 +217,7 @@ Update `ollamaBaseUrl` in your config:
 Switch to a smaller model:
 
 ```bash
-ollama pull qwen2.5:7b
+ollama pull qwen3.5:14b
 ```
 
 Then update `model` in your config to `qwen2.5:7b` (or `qwen2.5:3b` on machines with 8 GB RAM).

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.2] - 2026-07-23
+
+- Added `whisperDevice` config option to choose which GPU/device whisper-cli runs on. Accepts a device index (`0`, `1`), a comma-separated list (`"0,1"`), or a GPU UUID — value semantics match `CUDA_VISIBLE_DEVICES`. Also settable via the `SAMURAIZER_WHISPER_DEVICE` environment variable. When unset, behavior is unchanged.
+- Transcription now runs whisper-cli with additional decoding flags (`-sns`, `-mc 0`, `-et 2.6`) to suppress non-speech tokens and reduce hallucinated output. Transcripts may differ slightly from 0.4.x.
+- Added a Vitest test suite for the transcription env-override logic, plus `test` / `test:watch` scripts.
+
 ## [0.4.1] - 2026-05-13
 
 - Added package-specific README (visible on npm package page). Previously the npm page showed "This package does not have a README"; root repo README was the only source of CLI documentation.
