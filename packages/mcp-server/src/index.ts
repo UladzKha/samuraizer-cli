@@ -6,15 +6,21 @@ import { createContext } from '@samuraizer/cli/tools/context';
 import { runTool } from '@samuraizer/cli/shared/tool-definition';
 import { tools } from '@samuraizer/cli/shared/tool-registry';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { FsMeetingsStore } from './lib/meetings-store/fs-store.js';
 import { listMeetingsHandler } from './query/list-meetings.js';
 import { getMeetingHandler } from './query/get-meeting.js';
 import { listMeetingResources, readMeetingResource } from './query/meeting-resource.js';
 
+const pkg = JSON.parse(
+    readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../package.json'), 'utf-8'),
+) as { version: string };
+
 const server = new McpServer(
     {
         name: 'samuraizer',
-        version: '0.1.0',
+        version: pkg.version,
     },
     {
         instructions:
@@ -73,6 +79,7 @@ server.registerTool(
                 modelPath: ctx.config.whisperModelPath,
                 language: ctx.config.language,
                 whisperCommand: ctx.config.whisperCommand,
+                ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
             });
             return {
                 content: [{ type: 'text', text: result.text }],
@@ -174,6 +181,7 @@ server.registerTool(
             const message = err instanceof Error ? err.message : String(err);
             return {
                 content: [{ type: 'text', text: `Error extracting decisions: ${message}` }],
+                isError: true,
             };
         }
     }
@@ -201,6 +209,7 @@ server.registerTool(
                 ollamaBaseUrl: ctx.config.ollamaBaseUrl,
                 whisperCommand: ctx.config.whisperCommand,
                 whisperModelPath: ctx.config.whisperModelPath,
+                ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
                 language: ctx.config.language,
                 ffmpegCommand: ctx.config.ffmpegCommand,
                 ffprobeCommand: ctx.config.ffprobeCommand,
