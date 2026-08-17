@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- **New `search_meetings` tool:** full-text search across processed meetings by summary and name. Returns ranked results with a snippet around the best match. Useful for agents that need to find a specific meeting without enumerating all of them.
+- **Parallel LLM stages:** `process_recording` now benefits from concurrent summary/action-items/decisions generation (see `@samuraizer/cli` changelog).
+
 ## [0.1.4] - 2026-07-23
 
 - Fixed `extract_decisions` error handling: failures now correctly return `isError: true` to the MCP client instead of being reported as successful responses.

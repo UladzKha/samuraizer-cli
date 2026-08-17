@@ -136,6 +136,16 @@ Env vars override values from the config file.
 
 ### Query mode
 
+#### `search_meetings`
+
+Full-text search across processed meetings by summary and name.
+
+**Input:**
+- `query` *(string, required)* — search query (case-insensitive substring match).
+- `limit` *(integer, optional)* — maximum results to return (default 10).
+
+**Returns:** JSON array of ranked results, each with `id`, `name`, `generated_at`, `duration_sec`, `score`, `matched_in`, and a `snippet` around the best match. Useful for finding a specific meeting without enumerating all of them.
+
 #### `list_meetings`
 
 List processed meetings, sorted newest first.
