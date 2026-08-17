@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { FsMeetingsStore } from './lib/meetings-store/fs-store.js';
 import { listMeetingsHandler } from './query/list-meetings.js';
 import { getMeetingHandler } from './query/get-meeting.js';
+import { searchMeetingsHandler } from './query/search-meetings.js';
 import { listMeetingResources, readMeetingResource } from './query/meeting-resource.js';
 
 const pkg = JSON.parse(
@@ -225,6 +226,22 @@ server.registerTool(
             };
         }
     }
+);
+
+server.registerTool(
+  'search_meetings',
+  {
+    description: 'Full-text search across meetings by summary, name, action items, and decisions. Returns ranked results with snippets.',
+    inputSchema: {
+      query: z.string().min(1).describe('Search query (case-insensitive substring match).'),
+      limit: z.number().int().positive().optional().describe('Maximum results to return (default 10).'),
+    },
+  },
+  async ({ query, limit }) => {
+    const ctx = await createContext();
+    const store = new FsMeetingsStore(ctx.config.meetingsDir);
+    return searchMeetingsHandler(store, { query, limit });
+  },
 );
 
 server.registerTool(

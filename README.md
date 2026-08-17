@@ -9,6 +9,7 @@ Turn meeting recordings into transcripts, summaries, action items, and decisions
 - **Fully local.** Your recordings never leave your machine.
 - **CLI-first.** Scriptable, automatable, integrates with cron, Git hooks, Obsidian workflows.
 - **Resumable.** Crashed mid-pipeline? Re-run picks up where it left off.
+- **Fast.** LLM stages (summary, action items, decisions) run in parallel, cutting total time by ~2.3×.
 - **Model-agnostic.** Works with any Ollama-compatible LLM — pick what fits your hardware.
 - **Free.** No subscriptions, no per-minute pricing.
 

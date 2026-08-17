@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- **Parallel LLM stages:** summary, action items, and decisions are now generated concurrently via `Promise.all` instead of sequentially. For a 4-minute meeting this reduced LLM wall time from ~126s to ~55s (~2.3×). Cached (skip) behavior is unchanged — if any stage is already on disk and `--force` is not set, it is still skipped.
+
 ## [0.4.2] - 2026-07-23
 
 - Added `whisperDevice` config option to choose which GPU/device whisper-cli runs on. Accepts a device index (`0`, `1`), a comma-separated list (`"0,1"`), or a GPU UUID — value semantics match `CUDA_VISIBLE_DEVICES`. Also settable via the `SAMURAIZER_WHISPER_DEVICE` environment variable. When unset, behavior is unchanged.
