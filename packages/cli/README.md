@@ -116,6 +116,7 @@ Samuraizer uses a global JSON config file.
 - **ollamaBaseUrl** — URL where Ollama is running
 - **whisperCommand** — Command used to run Whisper
 - **whisperDevice** *(optional)* — GPU/device whisper-cli runs on. Accepts a device index (`0`, `1`), a comma-separated list (`"0,1"`), or a GPU UUID; value semantics match `CUDA_VISIBLE_DEVICES`. Omit to use the default device.
+- **whisperPrompt** *(optional)* — Initial prompt / hotwords passed to whisper-cli (`--prompt`). Bias decoding toward domain terms, participant names, or acronyms you know will appear. Keep under ~200 characters. Example: `"Patient ID, CR, Change Request, Spider, Grant"`.
 - **ffmpegCommand** — Command used for audio processing
 - **ffprobeCommand** — Command used for audio inspection
 

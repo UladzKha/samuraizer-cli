@@ -81,6 +81,7 @@ server.registerTool(
                 language: ctx.config.language,
                 whisperCommand: ctx.config.whisperCommand,
                 ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
+                ...(ctx.config.whisperPrompt !== undefined && ctx.config.whisperPrompt.trim().length > 0 && { initialPrompt: ctx.config.whisperPrompt }),
             });
             return {
                 content: [{ type: 'text', text: result.text }],
@@ -211,6 +212,7 @@ server.registerTool(
                 whisperCommand: ctx.config.whisperCommand,
                 whisperModelPath: ctx.config.whisperModelPath,
                 ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
+                ...(ctx.config.whisperPrompt !== undefined && { whisperPrompt: ctx.config.whisperPrompt }),
                 language: ctx.config.language,
                 ffmpegCommand: ctx.config.ffmpegCommand,
                 ffprobeCommand: ctx.config.ffprobeCommand,

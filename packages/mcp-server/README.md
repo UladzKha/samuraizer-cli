@@ -126,6 +126,7 @@ All config fields accept env-var overrides, useful for running the server in dif
 | `SAMURAIZER_WHISPER_COMMAND`   | `whisperCommand`   |
 | `SAMURAIZER_WHISPER_MODEL_PATH`| `whisperModelPath` |
 | `SAMURAIZER_WHISPER_DEVICE`    | `whisperDevice`    |
+| `SAMURAIZER_WHISPER_PROMPT`   | `whisperPrompt`   |
 | `SAMURAIZER_LANGUAGE`          | `language`         |
 | `SAMURAIZER_FFMPEG_COMMAND`    | `ffmpegCommand`    |
 | `SAMURAIZER_FFPROBE_COMMAND`   | `ffprobeCommand`   |

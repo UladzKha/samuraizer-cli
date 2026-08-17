@@ -16,6 +16,8 @@ const inputSchema = z.object({
     language: z.string().min(1),
     whisperCommand: z.string().min(1),
     whisperDevice: z.union([z.number(), z.string()]).optional(),
+    /** Whisper initial prompt (hotwords, domain terms, names). */
+    initialPrompt: z.string().optional(),
 });
 
 const outputSchema = z.object({
@@ -43,6 +45,7 @@ export const transcribeAudioTool: ToolDefinition<Input, Output> = {
             language: input.language,
             whisperCommand: input.whisperCommand,
             whisperDevice: input.whisperDevice,
+            initialPrompt: input.initialPrompt,
         });
 
         return {
