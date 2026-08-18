@@ -174,3 +174,95 @@ describe('searchMeetingsHandler', () => {
     expect(parse(result.content[0].text)[0].matched_in).toEqual(['summary']);
   });
 });
+
+describe('searchMeetingsHandler — multi-word queries', () => {
+  it('matches when the words are spread across different fields', async () => {
+    const store = makeStore([
+      makeRecord({
+        id: 'spread',
+        summaryText: 'Status update on patient ID visibility.',
+        actionItems: [
+          { id: 'act_1', text: 'Ask Grant for the post log', assignee: null, due_date: null },
+        ],
+      }),
+    ]);
+
+    // No single field contains this whole string; the old substring search
+    // returned nothing for exactly this query.
+    const result = await searchMeetingsHandler(store, { query: 'patient id post log' });
+
+    const parsed = parse(result.content[0].text);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].matched_in).toEqual(['summary', 'action_items']);
+  });
+
+  it('requires every word, not just one of them', async () => {
+    const store = makeStore([makeRecord({ summaryText: 'we discussed the post log at length' })]);
+
+    const result = await searchMeetingsHandler(store, { query: 'patient post log' });
+    expect(result.content[0].text).toContain('No meetings found');
+  });
+
+  it('ranks a verbatim phrase above the same words scattered', async () => {
+    const store = makeStore([
+      makeRecord({
+        id: 'scattered',
+        name: 'sync',
+        generated_at: '2026-05-09T10:00:00Z',
+        summaryText: 'the log covered every patient and the id of each post',
+      }),
+      makeRecord({
+        id: 'verbatim',
+        name: 'sync',
+        generated_at: '2026-05-09T10:00:00Z',
+        summaryText: 'the patient id post log was reviewed',
+      }),
+    ]);
+
+    const result = await searchMeetingsHandler(store, { query: 'patient id post log' });
+    const parsed = parse(result.content[0].text);
+
+    expect(parsed.map((r) => r.id)).toEqual(['verbatim', 'scattered']);
+    expect(parsed[0].score).toBeGreaterThan(parsed[1].score as number);
+    expect(parsed[0].snippet).toContain('patient id post log');
+  });
+
+  it('treats a quoted query as one exact phrase', async () => {
+    const store = makeStore([
+      makeRecord({ id: 'scattered', summaryText: 'the log covered every patient and the id of each post' }),
+      makeRecord({ id: 'verbatim', summaryText: 'the patient id post log was reviewed' }),
+    ]);
+
+    const result = await searchMeetingsHandler(store, { query: '"patient id post log"' });
+    const parsed = parse(result.content[0].text);
+
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].id).toBe('verbatim');
+  });
+
+  it('still matches terms as substrings', async () => {
+    const store = makeStore([makeRecord({ summaryText: 'the exporters were rewritten' })]);
+    const result = await searchMeetingsHandler(store, { query: 'export rewritten' });
+    expect(parse(result.content[0].text)).toHaveLength(1);
+  });
+
+  it('ignores duplicate words rather than double-scoring them', async () => {
+    const store = makeStore([makeRecord({ id: 'a', name: 'sync', summaryText: 'sync notes' })]);
+
+    const once = await searchMeetingsHandler(store, { query: 'sync' });
+    const twice = await searchMeetingsHandler(store, { query: 'sync sync' });
+
+    expect(parse(twice.content[0].text)[0].score).toBe(parse(once.content[0].text)[0].score);
+  });
+
+  it('collapses extra whitespace between words', async () => {
+    const store = makeStore([makeRecord({ summaryText: 'the patient id post log was reviewed' })]);
+    const result = await searchMeetingsHandler(store, { query: '  patient   id  ' });
+    expect(parse(result.content[0].text)).toHaveLength(1);
+  });
+
+  it('rejects a query that is only quotes and spaces', async () => {
+    const result = await searchMeetingsHandler(makeStore([]), { query: '"   "' });
+    expect(result.isError).toBe(true);
+  });
+});

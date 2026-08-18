@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -350,5 +350,19 @@ describe("processMeeting — whisper prompt passthrough", () => {
     it("passes whisperDevice independently of the prompt", async () => {
         await processMeeting(makeInput({ whisperDevice: 0 }));
         expect(state.transcribeInputs[0]).toMatchObject({ whisperDevice: 0 });
+    });
+});
+
+describe("processMeeting — undecodable input", () => {
+    it("leaves no run directory behind when the source cannot be probed", async () => {
+        const { probeAudio } = await import("../pipeline/audio/probe.js");
+        vi.mocked(probeAudio).mockRejectedValueOnce(new Error("Failed to probe audio metadata."));
+
+        await expect(processMeeting(makeInput())).rejects.toThrow("Failed to probe audio metadata.");
+
+        // The run directory is named after the input's base name. A file with a
+        // valid audio extension that ffprobe rejects must not leave an orphan
+        // directory and meta.json for list_meetings to trip over later.
+        await expect(stat(path.join(meetingsDir, "standup"))).rejects.toMatchObject({ code: "ENOENT" });
     });
 });
