@@ -53,6 +53,7 @@ program
                 whisperCommand: config.whisperCommand,
                 whisperModelPath: config.whisperModelPath,
                 ...(config.whisperDevice !== undefined && { whisperDevice: config.whisperDevice }),
+                ...(config.whisperPrompt !== undefined && { whisperPrompt: config.whisperPrompt }),
                 language: config.language,
                 ffmpegCommand: config.ffmpegCommand,
                 ffprobeCommand: config.ffprobeCommand,

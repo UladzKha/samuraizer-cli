@@ -28,6 +28,8 @@ export type ProcessMeetingInput = {
     whisperCommand: string;
     whisperModelPath: string;
     whisperDevice?: number | string;
+    /** Whisper initial prompt (hotwords, domain terms, names). */
+    whisperPrompt?: string;
     language: string;
     ffmpegCommand: string;
     ffprobeCommand: string;
@@ -96,6 +98,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
             language: input.language,
             whisperCommand: input.whisperCommand,
             ...(input.whisperDevice !== undefined && { whisperDevice: input.whisperDevice }),
+            ...(input.whisperPrompt !== undefined && input.whisperPrompt.trim().length > 0 && { initialPrompt: input.whisperPrompt }),
         });
         await writeFile(
             paths.transcriptJsonPath,

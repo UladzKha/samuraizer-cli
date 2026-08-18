@@ -9,6 +9,8 @@ export type TranscribeWithWhisperInput = {
     language: string;
     whisperCommand: string;
     whisperDevice?: number | string;
+    /** Whisper initial prompt (hotwords, domain terms, names). Maps to `--prompt`. */
+    initialPrompt?: string;
 };
 
 // Returns only the vars to *add* to the env; execa's extendEnv:true merges them with process.env.
@@ -27,14 +29,18 @@ export async function transcribeWithWhisper({
     language,
     whisperCommand,
     whisperDevice,
+    initialPrompt,
 }: TranscribeWithWhisperInput): Promise<Transcript> {
     const args = [
         "-m", modelPath,
-         "-f", audioPath,
-          "-oj", "-of", outputPrefix,
-           "-l", language,
-           "-sns", "-mc", "0", "-et", "2.6"
-        ];
+        "-f", audioPath,
+        "-oj", "-of", outputPrefix,
+        "-l", language,
+        "-sns", "-mc", "0", "-et", "2.6",
+    ];
+    if (initialPrompt !== undefined && initialPrompt.trim().length > 0) {
+        args.push("--prompt", initialPrompt.trim());
+    }
 
     const envOverride = buildWhisperEnvOverride(whisperDevice);
     const hasOverride = Object.keys(envOverride).length > 0;

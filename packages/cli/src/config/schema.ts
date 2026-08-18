@@ -9,6 +9,9 @@ export const configSchema = z.object({
     whisperModelPath: z.string().min(1),
     // Value semantics match CUDA_VISIBLE_DEVICES: device index (0, 1), comma list ("0,1"), or GPU UUID
     whisperDevice: z.union([z.number(), z.string()]).optional(),
+    // Whisper initial prompt: hotwords, domain terms, names to bias decoding toward.
+    // Maps to whisper-cli --prompt. Max ~n_text_ctx/2 tokens; keep under ~200 chars.
+    whisperPrompt: z.string().optional(),
     language: z.string().min(1),
     ffmpegCommand: z.string().min(1),
     ffprobeCommand: z.string().min(1),

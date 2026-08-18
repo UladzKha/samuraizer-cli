@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Added `whisperPrompt` config option: initial prompt / hotwords passed to whisper-cli (`--prompt`) to bias decoding toward domain terms, participant names, or acronyms. Set via `SAMURAIZER_WHISPER_PROMPT` env var. When unset, behavior is unchanged.
+
 - **Parallel LLM stages:** summary, action items, and decisions are now generated concurrently via `Promise.all` instead of sequentially. For a 4-minute meeting this reduced LLM wall time from ~126s to ~55s (~2.3×). Cached (skip) behavior is unchanged — if any stage is already on disk and `--force` is not set, it is still skipped.
 
 ## [0.4.2] - 2026-07-23
