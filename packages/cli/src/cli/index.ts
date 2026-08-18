@@ -54,9 +54,11 @@ program
                 whisperModelPath: config.whisperModelPath,
                 ...(config.whisperDevice !== undefined && { whisperDevice: config.whisperDevice }),
                 ...(config.whisperPrompt !== undefined && { whisperPrompt: config.whisperPrompt }),
+                ...(config.whisperCarryInitialPrompt !== undefined && { whisperCarryInitialPrompt: config.whisperCarryInitialPrompt }),
                 language: config.language,
                 ffmpegCommand: config.ffmpegCommand,
                 ffprobeCommand: config.ffprobeCommand,
+                llmConcurrency: config.llmConcurrency,
                 force: options.force,
             });
 
@@ -160,6 +162,10 @@ program
             const result = await initConfig();
             if (result.created) {
                 console.log(`Created config at: ${result.path}`);
+                console.log("Set whisperModelPath and meetingsDir before running 'samuraizer process'.");
+                console.log(
+                    "Optional fields (whisperDevice, whisperPrompt, whisperCarryInitialPrompt, llmConcurrency) are documented in the README.",
+                );
             } else {
                 console.log(`Config already exists at: ${result.path}`);
                 console.log("No changes were made. Edit the file manually to update values.");

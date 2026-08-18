@@ -60,13 +60,20 @@ export type RunMeta = {
         languageHint?: string;
         outputStages: Array<"summary" | "action_items" | "decisions" | "participants">;
     };
+    /**
+     * Last pipeline step that completed and was persisted.
+     *
+     * The three LLM stages run concurrently and are saved as one step, so
+     * "decisions_extracted" means all of summary, action items, and decisions
+     * are on disk. The former per-stage values ("summarized",
+     * "action_items_extracted") no longer occur and were removed rather than
+     * left as states nothing can produce.
+     */
     status:
         | "initialized"
         | "audio_normalized"
         | "audio_probed"
         | "transcribed"
-        | "summarized"
-        | "action_items_extracted"
         | "decisions_extracted"
         | "report_generated"
         | "meeting_output_generated";

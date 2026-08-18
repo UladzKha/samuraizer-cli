@@ -29,6 +29,7 @@ function makeMeeting(overrides: Partial<MeetingOutput> = {}): MeetingOutput {
 function makeStore(meetings: Map<string, MeetingOutput>): MeetingsStore {
   return {
     list: async () => [],
+    all: async () => [],
     get: async (id) => meetings.get(id) ?? null,
   };
 }

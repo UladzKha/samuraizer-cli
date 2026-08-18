@@ -18,6 +18,8 @@ const inputSchema = z.object({
     whisperDevice: z.union([z.number(), z.string()]).optional(),
     /** Whisper initial prompt (hotwords, domain terms, names). */
     initialPrompt: z.string().optional(),
+    /** Re-apply the initial prompt to every decoding window (`--carry-initial-prompt`). */
+    carryInitialPrompt: z.boolean().optional(),
 });
 
 const outputSchema = z.object({
@@ -46,6 +48,7 @@ export const transcribeAudioTool: ToolDefinition<Input, Output> = {
             whisperCommand: input.whisperCommand,
             whisperDevice: input.whisperDevice,
             initialPrompt: input.initialPrompt,
+            carryInitialPrompt: input.carryInitialPrompt,
         });
 
         return {

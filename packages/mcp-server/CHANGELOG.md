@@ -1,9 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.5] - 2026-08-18
 
-- **New `search_meetings` tool:** full-text search across processed meetings by summary and name. Returns ranked results with a snippet around the best match. Useful for agents that need to find a specific meeting without enumerating all of them.
-- **Parallel LLM stages:** `process_recording` now benefits from concurrent summary/action-items/decisions generation (see `@samuraizer/cli` changelog).
+- **New `search_meetings` tool:** searches processed meetings by summary text, name, action items, and decisions. Returns ranked results with a snippet around the best match. Useful for agents that need to find a specific meeting without enumerating all of them. Transcripts are not searched — `get_meeting` returns those.
+  - The summary is searched in full. An earlier iteration of this tool matched only `summary_preview`, the first 200 characters, so a term further into the summary produced a confident "No meetings found".
+- **`MeetingsStore.all()`:** new store method returning every meeting as a (summary, full document) pair in one directory scan. `search_meetings` uses it instead of `list()` plus one `get()` per meeting, which would rescan the meetings directory once per result.
+- Forward `whisperPrompt`, `whisperCarryInitialPrompt`, and `llmConcurrency` through `process_recording` and `transcribe_audio` (requires `@samuraizer/cli` ≥ 0.4.3).
+- Bumped the `@samuraizer/cli` dependency to `^0.4.3`. The range was `^0.4.0`, which allowed npm to install a CLI without `whisperDevice`/`whisperPrompt` support — the options were then silently dropped instead of failing loudly.
 
 ## [0.1.4] - 2026-07-23
 

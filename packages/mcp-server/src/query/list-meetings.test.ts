@@ -17,6 +17,7 @@ function makeSummary(overrides: Partial<MeetingSummary> = {}): MeetingSummary {
 function makeStore(summaries: MeetingSummary[]): MeetingsStore {
   return {
     list: async () => summaries,
+    all: async () => [],
     get: async () => null,
   };
 }

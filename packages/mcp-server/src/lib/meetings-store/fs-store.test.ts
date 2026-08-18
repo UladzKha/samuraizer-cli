@@ -175,3 +175,33 @@ describe('FsMeetingsStore.get', () => {
     expect(await store.get('01HXR5K7P8Q3M2N4VWXYZABCDE')).toBeNull();
   });
 });
+
+describe('FsMeetingsStore.all', () => {
+  it('returns empty array for empty meetingsDir', async () => {
+    const store = new FsMeetingsStore(workDir);
+    expect(await store.all()).toEqual([]);
+  });
+
+  it('pairs each summary with its full document, preserving list() order', async () => {
+    await createMeetingFolder(workDir, 'old', buildMeeting({
+      meeting_id: '01HXR5K7P8Q3M2N4VWXYZABC01',
+      generated_at: '2026-01-01T10:00:00Z',
+      summary: { text: 'x'.repeat(500) },
+    }));
+    await createMeetingFolder(workDir, 'new', buildMeeting({
+      meeting_id: '01HXR5K7P8Q3M2N4VWXYZABC02',
+      generated_at: '2026-06-01T10:00:00Z',
+    }));
+
+    const store = new FsMeetingsStore(workDir);
+    const records = await store.all();
+
+    expect(records.map(r => r.summary.name)).toEqual(['new', 'old']);
+    expect(records.map(r => r.summary.name)).toEqual((await store.list()).map(m => m.name));
+
+    // The preview is truncated; the paired document keeps the full text.
+    const old = records.find(r => r.summary.name === 'old');
+    expect(old?.summary.summary_preview).toHaveLength(200);
+    expect(old?.document.summary?.text).toHaveLength(500);
+  });
+});

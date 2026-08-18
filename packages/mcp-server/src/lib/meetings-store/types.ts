@@ -1,6 +1,18 @@
 import type { MeetingOutput } from 'memnex-spec';
 
 /**
+ * A meeting summary paired with the full document it was derived from.
+ *
+ * Returned by all(). Exists because MeetingSummary carries fields the
+ * document does not (name — the folder on disk), while the document
+ * carries the full text that summary_preview truncates.
+ */
+export interface MeetingRecord {
+  summary: MeetingSummary;
+  document: MeetingOutput;
+}
+
+/**
  * Lightweight summary of a meeting, suitable for list views.
  * Designed to be cheap to produce — readable from a single meeting.json
  * pass without loading transcript or other heavy fields.
@@ -33,6 +45,14 @@ export interface MeetingsStore {
    * Invalid or unreadable entries are silently skipped (warnings go to stderr).
    */
   list(): Promise<MeetingSummary[]>;
+
+  /**
+   * Return every meeting as a (summary, full document) pair, in the same
+   * order as list(). For consumers that need the full text — search, for
+   * one — this is a single pass instead of list() followed by N get()
+   * calls, each of which rescans the whole directory.
+   */
+  all(): Promise<MeetingRecord[]>;
 
   /**
    * Return the full meeting document by id, or null if not found

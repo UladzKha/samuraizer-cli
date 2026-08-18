@@ -11,6 +11,12 @@ export type TranscribeWithWhisperInput = {
     whisperDevice?: number | string;
     /** Whisper initial prompt (hotwords, domain terms, names). Maps to `--prompt`. */
     initialPrompt?: string;
+    /**
+     * Re-prepend the initial prompt to every decoding window (`--carry-initial-prompt`).
+     * Without it whisper.cpp applies the prompt to the first window only, so hotword
+     * biasing fades out over a long recording. Ignored when there is no initialPrompt.
+     */
+    carryInitialPrompt?: boolean;
 };
 
 // Returns only the vars to *add* to the env; execa's extendEnv:true merges them with process.env.
@@ -22,6 +28,17 @@ export function buildWhisperEnvOverride(whisperDevice: number | string | undefin
     return {};
 }
 
+// --carry-initial-prompt is meaningless without --prompt, so it is only emitted
+// alongside one. Exported for tests.
+export function buildPromptArgs(
+    initialPrompt: string | undefined,
+    carryInitialPrompt: boolean | undefined,
+): string[] {
+    const prompt = initialPrompt?.trim() ?? "";
+    if (prompt.length === 0) return [];
+    return carryInitialPrompt ? ["--prompt", prompt, "--carry-initial-prompt"] : ["--prompt", prompt];
+}
+
 export async function transcribeWithWhisper({
     audioPath,
     outputPrefix,
@@ -30,6 +47,7 @@ export async function transcribeWithWhisper({
     whisperCommand,
     whisperDevice,
     initialPrompt,
+    carryInitialPrompt,
 }: TranscribeWithWhisperInput): Promise<Transcript> {
     const args = [
         "-m", modelPath,
@@ -38,9 +56,7 @@ export async function transcribeWithWhisper({
         "-l", language,
         "-sns", "-mc", "0", "-et", "2.6",
     ];
-    if (initialPrompt !== undefined && initialPrompt.trim().length > 0) {
-        args.push("--prompt", initialPrompt.trim());
-    }
+    args.push(...buildPromptArgs(initialPrompt, carryInitialPrompt));
 
     const envOverride = buildWhisperEnvOverride(whisperDevice);
     const hasOverride = Object.keys(envOverride).length > 0;
