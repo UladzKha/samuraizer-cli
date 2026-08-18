@@ -238,9 +238,17 @@ server.registerTool(
 server.registerTool(
   'search_meetings',
   {
-    description: 'Search meetings by summary text, name, action items, and decisions. Transcripts are not searched — use get_meeting for those. Returns ranked results with snippets.',
+    description:
+      'Search meetings by summary text, name, action items, and decisions. Transcripts are not searched — use get_meeting for those. Returns ranked results with snippets.',
     inputSchema: {
-      query: z.string().min(1).describe('Search query (case-insensitive substring match).'),
+      query: z
+        .string()
+        .min(1)
+        .describe(
+          'Search query. Case-insensitive. Every word must appear somewhere in the searched fields, ' +
+            'but they need not share a field. Words match as substrings ("export" finds "exporter"). ' +
+            'Wrap words in double quotes to require them as an exact phrase.',
+        ),
       limit: z.number().int().positive().optional().describe('Maximum results to return (default 10).'),
     },
   },

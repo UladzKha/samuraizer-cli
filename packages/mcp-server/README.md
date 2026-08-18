@@ -146,10 +146,25 @@ Search processed meetings by summary text, meeting name, action items, and decis
 Transcripts are deliberately **not** searched — they are one to two orders of magnitude larger than the fields above, and scanning them on every query would not scale. Use `get_meeting` when you need the transcript.
 
 **Input:**
-- `query` *(string, required)* — search query (case-insensitive substring match).
+- `query` *(string, required)* — search query, case-insensitive. See [Query syntax](#query-syntax).
 - `limit` *(integer, optional)* — maximum results to return (default 10).
 
 **Returns:** JSON array of ranked results, each with `id`, `name`, `generated_at`, `duration_sec`, `score`, `matched_in` (any of `summary`, `name`, `action_items`, `decisions`), and a `snippet` around the best match. Results are ranked by how many fields matched — a summary hit weighs more than a name, action-item, or decision hit — with ties broken by recency. Useful for finding a specific meeting without enumerating all of them.
+
+##### Query syntax
+
+The query is split into words, and a meeting matches only when **every** word is found. The words do not have to share a field, so `patient id post log` matches a meeting whose summary mentions the patient ID and whose action items mention the post log.
+
+Each word matches as a substring, so `export` finds `exporter`.
+
+Wrap the query in double quotes to require an exact phrase instead:
+
+```
+patient id post log      → all four words, anywhere in the searched fields
+"patient id post log"    → that exact run of characters, in one field
+```
+
+A meeting containing the whole query verbatim scores above one that merely scatters the same words, so exact matches still surface first.
 
 #### `list_meetings`
 

@@ -77,19 +77,24 @@ function readPackageVersion(): string {
 
 export async function processMeeting(input: ProcessMeetingInput): Promise<ProcessMeetingResult> {
     const validatedFile = await validateInputFile(input.inputPath);
-    const { paths, meta } = await prepareOutput(validatedFile, input.meetingsDir);
 
     await ensureFfmpeg(input.ffmpegCommand);
     await ensureFfprobe(input.ffprobeCommand);
     await ensureWhisperCli(input.whisperCommand);
     await ensureOllama(input.ollamaBaseUrl);
 
+    // Probe before preparing the run directory. validateInputFile only checks the
+    // path and extension; this is the first step that proves the file is decodable
+    // audio. Probing first means an unreadable input fails without leaving an empty
+    // run directory and a meta.json behind.
+    const sourceAudioMetadata = await probeAudio(validatedFile.resolvedPath, input.ffprobeCommand);
+
+    const { paths, meta } = await prepareOutput(validatedFile, input.meetingsDir);
+    meta.input.audioMetadata = sourceAudioMetadata;
+
     // Best-effort version detection for provenance. Null on failure.
     const whisperVersion = await detectWhisperCppVersion(input.whisperCommand);
     const ollamaVersion = await detectOllamaVersion();
-
-    // Probe source audio
-    meta.input.audioMetadata = await probeAudio(validatedFile.resolvedPath, input.ffprobeCommand);
 
     // Normalize audio
     let normalized: { normalizedAudioPath: string };

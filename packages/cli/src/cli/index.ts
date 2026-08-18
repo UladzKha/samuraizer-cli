@@ -11,12 +11,34 @@ import { tools } from "../shared/tool-registry.js";
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(
   readFileSync(join(__dirname, '../../package.json'), 'utf-8')
 );
+
+/**
+ * Read a transcript for the summarize/actions/decisions commands.
+ *
+ * A bare readFile surfaces Node's raw "ENOENT: no such file or directory, open
+ * '...'", which reads like a crash rather than a mistyped path. Translate the
+ * two errors a user actually hits into the same wording `process` uses.
+ */
+async function readTranscriptFile(file: string): Promise<string> {
+    try {
+        return await readFile(file, "utf-8");
+    } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code === "ENOENT") {
+            throw new Error(`Transcript file does not exist: ${resolve(file)}`);
+        }
+        if (code === "EISDIR") {
+            throw new Error(`Path is a directory, not a transcript file: ${resolve(file)}`);
+        }
+        throw error;
+    }
+}
 
 const program = new Command();
 
@@ -101,7 +123,7 @@ program
     .action(async (file: string) => {
         try {
             const config = await loadConfig();
-            const text = await readFile(file, "utf-8");
+            const text = await readTranscriptFile(file);
             const result = await runTool(tools.summarize_transcript, {
                 transcriptText: text,
                 model: config.model,
@@ -121,7 +143,7 @@ program
     .action(async (file: string) => {
         try {
             const config = await loadConfig();
-            const text = await readFile(file, "utf-8");
+            const text = await readTranscriptFile(file);
             const result = await runTool(tools.extract_action_items, {
                 transcriptText: text,
                 model: config.model,
@@ -141,7 +163,7 @@ program
     .action(async (file: string) => {
         try {
             const config = await loadConfig();
-            const text = await readFile(file, "utf-8");
+            const text = await readTranscriptFile(file);
             const result = await runTool(tools.extract_decisions, {
                 transcriptText: text,
                 model: config.model,

@@ -8,6 +8,11 @@
 - Forward `whisperPrompt`, `whisperCarryInitialPrompt`, and `llmConcurrency` through `process_recording` and `transcribe_audio` (requires `@samuraizer/cli` ≥ 0.4.3).
 - Bumped the `@samuraizer/cli` dependency to `^0.4.3`. The range was `^0.4.0`, which allowed npm to install a CLI without `whisperDevice`/`whisperPrompt` support — the options were then silently dropped instead of failing loudly.
 
+- **`search_meetings` now tokenises the query.** It previously matched the whole query as a single substring, so a multi-word query found a meeting only when those exact characters sat together in one field: `patient id post log` returned "No meetings found" even when the summary discussed the patient ID and the action items discussed the post log. The query is now split into words, and a meeting matches when *every* word is found somewhere in the searched fields — the words need not share a field. Individual words still match as substrings (`export` finds `exporter`), so single-word queries behave exactly as before.
+  - Wrap the query in double quotes (`"patient id post log"`) to require an exact phrase, which is the previous behaviour when you want it.
+  - Ranking sums each field's weight per matching word, and adds one more hit when the whole query appears verbatim, so exact matches still rank above meetings that merely scatter the same words. `matched_in` now lists every field any word matched, and always in field order.
+- **Fixed the `transcribe_audio` tool**, which failed for effectively every input with `whisper-cli finished but JSON output was not found`. The underlying CLI tool did not create the run directory it told whisper-cli to write into, and whisper-cli exits `0` rather than failing when that directory is missing. Fixed in `@samuraizer/cli` 0.4.3; see its changelog.
+
 ## [0.1.4] - 2026-07-23
 
 - Fixed `extract_decisions` error handling: failures now correctly return `isError: true` to the MCP client instead of being reported as successful responses.

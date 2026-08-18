@@ -19,13 +19,62 @@ interface SearchResult {
 /** Characters of context kept on each side of a match in the snippet. */
 const SNIPPET_CONTEXT = 50;
 
+/**
+ * Rank bonus that makes a snippet anchored on the whole phrase win over one
+ * anchored on a single term, regardless of which field each was found in.
+ * Only affects which excerpt is shown, never whether a meeting matches.
+ */
+const PHRASE_SNIPPET_BOOST = 100;
+
 type Haystack = { label: string; text: string; weight: number };
+
+export type ParsedQuery = {
+  /** Every term that must be present somewhere for a meeting to match. */
+  terms: string[];
+  /**
+   * The whole query as one string, scored as a bonus when it appears verbatim.
+   * Null for single-term queries, where it would double-count the only term.
+   */
+  phrase: string | null;
+};
+
+/**
+ * Split a raw query into search terms.
+ *
+ * Bare words are separate terms; a "quoted run" stays a single term, which is
+ * how a caller asks for an exact phrase and nothing looser.
+ */
+export function parseQuery(raw: string): ParsedQuery {
+  const normalized = raw.trim().toLowerCase();
+  const terms: string[] = [];
+
+  for (const match of normalized.matchAll(/"([^"]+)"|(\S+)/g)) {
+    const term = (match[1] ?? match[2] ?? '').trim();
+    if (term.length > 0 && !terms.includes(term)) terms.push(term);
+  }
+
+  const phrase = normalized.replace(/"/g, '').replace(/\s+/g, ' ').trim();
+
+  return { terms, phrase: terms.length > 1 ? phrase : null };
+}
 
 /**
  * Handler for the `search_meetings` MCP tool.
  *
  * Searches the full summary text, meeting name, action items, and decisions.
  * Returns ranked results with a snippet around the best match.
+ *
+ * The query is tokenised, and a meeting matches only when *every* term appears
+ * somewhere in those fields — terms need not share a field, so "patient id post
+ * log" finds a meeting whose summary mentions the patient ID and whose action
+ * items mention the post log. Matching a term is still substring-based, so
+ * "exporter" finds "exporters". A caller who wants the old strict behaviour can
+ * quote the query.
+ *
+ * Ranking sums the weight of each field a term was found in, so a term hitting
+ * several fields outranks one hitting a single field. A verbatim hit on the
+ * whole phrase scores once more on top, keeping exact matches above meetings
+ * that merely scatter the same words.
  *
  * Deliberately does NOT search the transcript: transcripts are one to two
  * orders of magnitude larger than the fields above, and scanning them for
@@ -36,8 +85,8 @@ export async function searchMeetingsHandler(
   store: MeetingsStore,
   input: SearchMeetingsInput,
 ): Promise<CallToolResult> {
-  const query = input.query.trim().toLowerCase();
-  if (!query) {
+  const { terms, phrase } = parseQuery(input.query);
+  if (terms.length === 0) {
     return {
       content: [{ type: 'text', text: 'Query must not be empty.' }],
       isError: true,
@@ -50,27 +99,51 @@ export async function searchMeetingsHandler(
 
   for (const record of records) {
     const matched: string[] = [];
+    const foundTerms = new Set<string>();
     let score = 0;
     let bestSnippet = '';
-    let bestWeight = 0;
+    let bestRank = -1;
 
+    // Fields outside, terms inside, so matched_in always follows field order
+    // rather than the order the caller happened to type the words in.
     for (const { label, text, weight } of buildHaystacks(record)) {
-      const idx = text.toLowerCase().indexOf(query);
-      if (idx === -1) continue;
+      const haystack = text.toLowerCase();
+      let fieldMatched = false;
 
-      matched.push(label);
-      score += weight;
+      for (const term of terms) {
+        const idx = haystack.indexOf(term);
+        if (idx === -1) continue;
 
-      const start = Math.max(0, idx - SNIPPET_CONTEXT);
-      const end = Math.min(text.length, idx + query.length + SNIPPET_CONTEXT);
-      const snippet = (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
-      if (weight > bestWeight) {
-        bestWeight = weight;
-        bestSnippet = snippet;
+        foundTerms.add(term);
+        score += weight;
+        fieldMatched = true;
+
+        if (weight > bestRank) {
+          bestRank = weight;
+          bestSnippet = buildSnippet(text, idx, term.length);
+        }
       }
+
+      if (phrase !== null) {
+        const idx = haystack.indexOf(phrase);
+        if (idx !== -1) {
+          score += weight;
+          fieldMatched = true;
+
+          const rank = weight + PHRASE_SNIPPET_BOOST;
+          if (rank > bestRank) {
+            bestRank = rank;
+            bestSnippet = buildSnippet(text, idx, phrase.length);
+          }
+        }
+      }
+
+      if (fieldMatched) matched.push(label);
     }
 
-    if (matched.length > 0) {
+    // Every term must have landed somewhere; a meeting carrying only some of
+    // them is not what the caller asked for.
+    if (foundTerms.size === terms.length) {
       results.push({
         id: record.summary.id,
         name: record.summary.name,
@@ -102,10 +175,17 @@ export async function searchMeetingsHandler(
   };
 }
 
+/** Excerpt around a match, with ellipses where the field was cut. */
+function buildSnippet(text: string, idx: number, matchLength: number): string {
+  const start = Math.max(0, idx - SNIPPET_CONTEXT);
+  const end = Math.min(text.length, idx + matchLength + SNIPPET_CONTEXT);
+  return (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
+}
+
 /**
  * One searchable text blob per field group. Each group is matched at most
- * once, so a term repeated inside a group does not outrank a term that
- * appears in several groups.
+ * once per term, so a term repeated inside a group does not outrank a term
+ * that appears in several groups.
  */
 function buildHaystacks({ summary, document }: MeetingRecord): Haystack[] {
   const haystacks: Haystack[] = [];
