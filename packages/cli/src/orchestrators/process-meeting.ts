@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validate } from "memnex-spec";
 import { buildMeetingOutput } from "../pipeline/output/build-meeting-output.js";
+import { runWithConcurrency } from "../lib/run-with-concurrency.js";
 import { sha256File } from "../lib/sha256-file.js";
 import { ensureFfmpeg } from "../checks/ffmpeg.js";
 import { ensureFfprobe } from "../checks/ffprobe.js";
@@ -30,10 +31,35 @@ export type ProcessMeetingInput = {
     whisperDevice?: number | string;
     /** Whisper initial prompt (hotwords, domain terms, names). */
     whisperPrompt?: string;
+    /** Re-apply whisperPrompt to every decoding window (`--carry-initial-prompt`). */
+    whisperCarryInitialPrompt?: boolean;
     language: string;
     ffmpegCommand: string;
     ffprobeCommand: string;
+    /** Max LLM stages in flight at once (1-3). Defaults to 3. */
+    llmConcurrency?: number;
     force?: boolean;
+};
+
+type SummaryArtifact = {
+    summary: string;
+    model: string;
+    sourceTranscriptPath: string;
+    createdAt: string;
+};
+
+type ActionItemsArtifact = {
+    items: Array<{ text: string; owner: string | null; dueDate: string | null }>;
+    model: string;
+    sourceTranscriptPath: string;
+    createdAt: string;
+};
+
+type DecisionsArtifact = {
+    items: Array<{ text: string }>;
+    model: string;
+    sourceTranscriptPath: string;
+    createdAt: string;
 };
 
 export type ProcessMeetingResult = {
@@ -98,7 +124,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
             language: input.language,
             whisperCommand: input.whisperCommand,
             ...(input.whisperDevice !== undefined && { whisperDevice: input.whisperDevice }),
-            ...(input.whisperPrompt !== undefined && input.whisperPrompt.trim().length > 0 && { initialPrompt: input.whisperPrompt }),
+            ...(input.whisperPrompt !== undefined && input.whisperPrompt.trim().length > 0 && {
+                initialPrompt: input.whisperPrompt,
+                ...(input.whisperCarryInitialPrompt !== undefined && { carryInitialPrompt: input.whisperCarryInitialPrompt }),
+            }),
         });
         await writeFile(
             paths.transcriptJsonPath,
@@ -126,64 +155,68 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     meta.status = "transcribed";
     await saveMeta(paths, meta);
 
-    // Generate summary, action items, and decisions in parallel
+    // Summary, action items, and decisions are independent, so they run concurrently —
+    // bounded by llmConcurrency, since each in-flight request costs Ollama another
+    // num_ctx-sized KV cache slot. They are also treated as one atomic step: meta is
+    // saved once, after all three land, so a crash mid-stage leaves status at
+    // "transcribed" rather than claiming progress the run did not finish.
     const sharedCreatedAt = new Date().toISOString();
 
-    const [summaryResult, actionItemsResult, decisionsResult] = await Promise.all([
-        // Summarize
-        (async (): Promise<{ summary: string; model: string; sourceTranscriptPath: string; createdAt: string }> => {
-            if (!input.force && await fileExists(paths.summaryJsonPath)) {
-                console.log("Skipping summary (cached).");
-                return readJson<{ summary: string; model: string; sourceTranscriptPath: string; createdAt: string }>(paths.summaryJsonPath);
-            }
-            console.log("Generating summary...");
-            const { summary } = await runTool(tools.summarize_transcript, {
-                transcriptText: transcription.text,
-                model: input.model,
-                ollamaBaseUrl: input.ollamaBaseUrl,
-            });
-            const result = { summary, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
-            await writeFile(paths.summaryTextPath, summary, "utf-8");
-            await writeFile(paths.summaryJsonPath, JSON.stringify(result, null, 2), "utf-8");
-            return result;
-        })(),
+    const summarize = async (): Promise<SummaryArtifact> => {
+        if (!input.force && await fileExists(paths.summaryJsonPath)) {
+            console.log("Skipping summary (cached).");
+            return readJson<SummaryArtifact>(paths.summaryJsonPath);
+        }
+        console.log("Generating summary...");
+        const { summary } = await runTool(tools.summarize_transcript, {
+            transcriptText: transcription.text,
+            model: input.model,
+            ollamaBaseUrl: input.ollamaBaseUrl,
+        });
+        const result: SummaryArtifact = { summary, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
+        await writeFile(paths.summaryTextPath, summary, "utf-8");
+        await writeFile(paths.summaryJsonPath, JSON.stringify(result, null, 2), "utf-8");
+        return result;
+    };
 
-        // Extract action items
-        (async (): Promise<{ items: Array<{ text: string; owner: string | null; dueDate: string | null }>; model: string; sourceTranscriptPath: string; createdAt: string }> => {
-            if (!input.force && await fileExists(paths.actionItemsJsonPath)) {
-                console.log("Skipping action items (cached).");
-                return readJson<{ items: Array<{ text: string; owner: string | null; dueDate: string | null }>; model: string; sourceTranscriptPath: string; createdAt: string }>(paths.actionItemsJsonPath);
-            }
-            console.log("Extracting action items...");
-            const { items: actionItems } = await runTool(tools.extract_action_items, {
-                transcriptText: transcription.text,
-                model: input.model,
-                ollamaBaseUrl: input.ollamaBaseUrl,
-            });
-            const result = { items: actionItems, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
-            await writeFile(paths.actionItemsTextPath, formatActionItems(actionItems), "utf-8");
-            await writeFile(paths.actionItemsJsonPath, JSON.stringify(result, null, 2), "utf-8");
-            return result;
-        })(),
+    const extractActionItems = async (): Promise<ActionItemsArtifact> => {
+        if (!input.force && await fileExists(paths.actionItemsJsonPath)) {
+            console.log("Skipping action items (cached).");
+            return readJson<ActionItemsArtifact>(paths.actionItemsJsonPath);
+        }
+        console.log("Extracting action items...");
+        const { items: actionItems } = await runTool(tools.extract_action_items, {
+            transcriptText: transcription.text,
+            model: input.model,
+            ollamaBaseUrl: input.ollamaBaseUrl,
+        });
+        const result: ActionItemsArtifact = { items: actionItems, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
+        await writeFile(paths.actionItemsTextPath, formatActionItems(actionItems), "utf-8");
+        await writeFile(paths.actionItemsJsonPath, JSON.stringify(result, null, 2), "utf-8");
+        return result;
+    };
 
-        // Extract decisions
-        (async (): Promise<{ items: Array<{ text: string }>; model: string; sourceTranscriptPath: string; createdAt: string }> => {
-            if (!input.force && await fileExists(paths.decisionsJsonPath)) {
-                console.log("Skipping decisions (cached).");
-                return readJson<{ items: Array<{ text: string }>; model: string; sourceTranscriptPath: string; createdAt: string }>(paths.decisionsJsonPath);
-            }
-            console.log("Extracting decisions...");
-            const { items: decisions } = await runTool(tools.extract_decisions, {
-                transcriptText: transcription.text,
-                model: input.model,
-                ollamaBaseUrl: input.ollamaBaseUrl,
-            });
-            const result = { items: decisions, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
-            await writeFile(paths.decisionsTextPath, formatDecisions(decisions), "utf-8");
-            await writeFile(paths.decisionsJsonPath, JSON.stringify(result, null, 2), "utf-8");
-            return result;
-        })(),
-    ]);
+    const extractDecisions = async (): Promise<DecisionsArtifact> => {
+        if (!input.force && await fileExists(paths.decisionsJsonPath)) {
+            console.log("Skipping decisions (cached).");
+            return readJson<DecisionsArtifact>(paths.decisionsJsonPath);
+        }
+        console.log("Extracting decisions...");
+        const { items: decisions } = await runTool(tools.extract_decisions, {
+            transcriptText: transcription.text,
+            model: input.model,
+            ollamaBaseUrl: input.ollamaBaseUrl,
+        });
+        const result: DecisionsArtifact = { items: decisions, model: input.model, sourceTranscriptPath: transcription.transcriptPath, createdAt: sharedCreatedAt };
+        await writeFile(paths.decisionsTextPath, formatDecisions(decisions), "utf-8");
+        await writeFile(paths.decisionsJsonPath, JSON.stringify(result, null, 2), "utf-8");
+        return result;
+    };
+
+    const [summaryResult, actionItemsResult, decisionsResult] = await runWithConcurrency(
+        [summarize, extractActionItems, extractDecisions] as const,
+        input.llmConcurrency ?? 3,
+    );
 
     meta.output.summaryTextPath = paths.summaryTextPath;
     meta.output.summaryJsonPath = paths.summaryJsonPath;

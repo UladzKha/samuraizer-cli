@@ -39,6 +39,7 @@ function makeStore(opts: {
 }): MeetingsStore {
   return {
     list: async () => opts.summaries ?? [],
+    all: async () => [],
     get: async (id) => opts.meetings?.get(id) ?? null,
   };
 }

@@ -31,6 +31,26 @@ async function readConfigFile(filePath: string): Promise<Partial<SamuraizerConfi
     return result.data;
 }
 
+// Env vars are strings; the schema expects real booleans/numbers, so these two
+// convert before validation. An unparseable value is a user error worth failing on,
+// not something to silently coerce to false/NaN.
+function parseBooleanEnv(raw: string): boolean {
+    const value = raw.trim().toLowerCase();
+    if (["1", "true", "yes", "on"].includes(value)) return true;
+    if (["0", "false", "no", "off", ""].includes(value)) return false;
+    throw new Error(
+        `Invalid boolean value for SAMURAIZER_WHISPER_CARRY_INITIAL_PROMPT: "${raw}". Use 1/0, true/false, yes/no, or on/off.`,
+    );
+}
+
+function parseIntegerEnv(name: string, raw: string): number {
+    const value = Number(raw.trim());
+    if (!Number.isInteger(value)) {
+        throw new Error(`Invalid integer value for ${name}: "${raw}".`);
+    }
+    return value;
+}
+
 function readEnvOverrides(): Partial<SamuraizerConfig> {
     const env: Partial<SamuraizerConfig> = {};
     if (process.env.SAMURAIZER_MODEL) env.model = process.env.SAMURAIZER_MODEL;
@@ -39,6 +59,12 @@ function readEnvOverrides(): Partial<SamuraizerConfig> {
     if (process.env.SAMURAIZER_WHISPER_MODEL_PATH) env.whisperModelPath = process.env.SAMURAIZER_WHISPER_MODEL_PATH;
     if (process.env.SAMURAIZER_WHISPER_DEVICE !== undefined) env.whisperDevice = process.env.SAMURAIZER_WHISPER_DEVICE;
     if (process.env.SAMURAIZER_WHISPER_PROMPT) env.whisperPrompt = process.env.SAMURAIZER_WHISPER_PROMPT;
+    if (process.env.SAMURAIZER_WHISPER_CARRY_INITIAL_PROMPT !== undefined) {
+        env.whisperCarryInitialPrompt = parseBooleanEnv(process.env.SAMURAIZER_WHISPER_CARRY_INITIAL_PROMPT);
+    }
+    if (process.env.SAMURAIZER_LLM_CONCURRENCY) {
+        env.llmConcurrency = parseIntegerEnv("SAMURAIZER_LLM_CONCURRENCY", process.env.SAMURAIZER_LLM_CONCURRENCY);
+    }
     if (process.env.SAMURAIZER_LANGUAGE) env.language = process.env.SAMURAIZER_LANGUAGE;
     if (process.env.SAMURAIZER_FFMPEG_COMMAND) env.ffmpegCommand = process.env.SAMURAIZER_FFMPEG_COMMAND;
     if (process.env.SAMURAIZER_FFPROBE_COMMAND) env.ffprobeCommand = process.env.SAMURAIZER_FFPROBE_COMMAND;

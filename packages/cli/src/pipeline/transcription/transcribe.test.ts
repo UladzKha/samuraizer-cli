@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildWhisperEnvOverride } from "./transcribe.js";
+import { buildPromptArgs, buildWhisperEnvOverride } from "./transcribe.js";
 
 describe("buildWhisperEnvOverride", () => {
     it("returns empty object when whisperDevice is undefined (no CUDA_VISIBLE_DEVICES added)", () => {
@@ -20,5 +20,26 @@ describe("buildWhisperEnvOverride", () => {
 
     it("returns empty object when whisperDevice is empty string", () => {
         expect(buildWhisperEnvOverride("")).toEqual({});
+    });
+});
+
+describe("buildPromptArgs", () => {
+    it("emits nothing when no prompt is set", () => {
+        expect(buildPromptArgs(undefined, undefined)).toEqual([]);
+        expect(buildPromptArgs(undefined, true)).toEqual([]);
+    });
+
+    it("emits nothing for a blank prompt — including when carry is requested", () => {
+        expect(buildPromptArgs("   ", undefined)).toEqual([]);
+        expect(buildPromptArgs("   ", true)).toEqual([]);
+    });
+
+    it("passes a trimmed prompt as a single argv entry (no shell quoting needed)", () => {
+        expect(buildPromptArgs("  Patient ID, CR  ", undefined)).toEqual(["--prompt", "Patient ID, CR"]);
+    });
+
+    it("adds --carry-initial-prompt only when carry is enabled", () => {
+        expect(buildPromptArgs("Patient ID", false)).toEqual(["--prompt", "Patient ID"]);
+        expect(buildPromptArgs("Patient ID", true)).toEqual(["--prompt", "Patient ID", "--carry-initial-prompt"]);
     });
 });

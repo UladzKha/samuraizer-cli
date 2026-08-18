@@ -127,11 +127,13 @@ All config fields accept env-var overrides, useful for running the server in dif
 | `SAMURAIZER_WHISPER_MODEL_PATH`| `whisperModelPath` |
 | `SAMURAIZER_WHISPER_DEVICE`    | `whisperDevice`    |
 | `SAMURAIZER_WHISPER_PROMPT`   | `whisperPrompt`   |
+| `SAMURAIZER_WHISPER_CARRY_INITIAL_PROMPT` | `whisperCarryInitialPrompt` |
 | `SAMURAIZER_LANGUAGE`          | `language`         |
 | `SAMURAIZER_FFMPEG_COMMAND`    | `ffmpegCommand`    |
 | `SAMURAIZER_FFPROBE_COMMAND`   | `ffprobeCommand`   |
+| `SAMURAIZER_LLM_CONCURRENCY`   | `llmConcurrency`   |
 
-Env vars override values from the config file.
+Env vars override values from the config file. Booleans accept `1/0`, `true/false`, `yes/no`, or `on/off`.
 
 ## Tools
 
@@ -139,13 +141,15 @@ Env vars override values from the config file.
 
 #### `search_meetings`
 
-Full-text search across processed meetings by summary and name.
+Search processed meetings by summary text, meeting name, action items, and decisions.
+
+Transcripts are deliberately **not** searched — they are one to two orders of magnitude larger than the fields above, and scanning them on every query would not scale. Use `get_meeting` when you need the transcript.
 
 **Input:**
 - `query` *(string, required)* — search query (case-insensitive substring match).
 - `limit` *(integer, optional)* — maximum results to return (default 10).
 
-**Returns:** JSON array of ranked results, each with `id`, `name`, `generated_at`, `duration_sec`, `score`, `matched_in`, and a `snippet` around the best match. Useful for finding a specific meeting without enumerating all of them.
+**Returns:** JSON array of ranked results, each with `id`, `name`, `generated_at`, `duration_sec`, `score`, `matched_in` (any of `summary`, `name`, `action_items`, `decisions`), and a `snippet` around the best match. Results are ranked by how many fields matched — a summary hit weighs more than a name, action-item, or decision hit — with ties broken by recency. Useful for finding a specific meeting without enumerating all of them.
 
 #### `list_meetings`
 

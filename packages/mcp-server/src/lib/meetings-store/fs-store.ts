@@ -11,7 +11,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { validate } from 'memnex-spec';
 import type { MeetingOutput } from 'memnex-spec';
-import type { MeetingsStore, MeetingSummary } from './types.js';
+import type { MeetingRecord, MeetingsStore, MeetingSummary } from './types.js';
 
 const SUMMARY_PREVIEW_LENGTH = 200;
 
@@ -24,10 +24,15 @@ export class FsMeetingsStore implements MeetingsStore {
   constructor(private readonly meetingsDir: string) {}
 
   async list(): Promise<MeetingSummary[]> {
+    const records = await this.all();
+    return records.map(({ summary }) => summary);
+  }
+
+  async all(): Promise<MeetingRecord[]> {
     const scanned = await this.scanAll();
     return scanned
-      .map(({ folderName, document }) => toSummary(folderName, document))
-      .sort((a, b) => b.generated_at.localeCompare(a.generated_at));
+      .map(({ folderName, document }) => ({ summary: toSummary(folderName, document), document }))
+      .sort((a, b) => b.summary.generated_at.localeCompare(a.summary.generated_at));
   }
 
   async get(id: string): Promise<MeetingOutput | null> {

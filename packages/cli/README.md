@@ -117,10 +117,12 @@ Samuraizer uses a global JSON config file.
 - **whisperCommand** — Command used to run Whisper
 - **whisperDevice** *(optional)* — GPU/device whisper-cli runs on. Accepts a device index (`0`, `1`), a comma-separated list (`"0,1"`), or a GPU UUID; value semantics match `CUDA_VISIBLE_DEVICES`. Omit to use the default device.
 - **whisperPrompt** *(optional)* — Initial prompt / hotwords passed to whisper-cli (`--prompt`). Bias decoding toward domain terms, participant names, or acronyms you know will appear. Keep under ~200 characters. Example: `"Patient ID, CR, Change Request, Spider, Grant"`.
+- **whisperCarryInitialPrompt** *(optional, default `false`)* — Re-apply `whisperPrompt` to every decoding window (`--carry-initial-prompt`). By default whisper.cpp uses the initial prompt for the first window only, so on a long recording the hotword bias fades after the opening minutes. Enable this to keep it active throughout; the trade-off is that the prompt occupies context in every window and, if it is long or unnatural, can leak into the transcript.
 - **ffmpegCommand** — Command used for audio processing
 - **ffprobeCommand** — Command used for audio inspection
+- **llmConcurrency** *(optional, default `3`, range `1-3`)* — How many of the three LLM stages (summary, action items, decisions) run at the same time. See [LLM concurrency and VRAM](#llm-concurrency-and-vram).
 
-Every config field can also be overridden with an environment variable, e.g. `SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a`.
+Every config field can also be overridden with an environment variable, e.g. `SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a`. Booleans accept `1/0`, `true/false`, `yes/no`, or `on/off`.
 
 ### Selecting a GPU
 
@@ -137,6 +139,36 @@ Or per-run, without editing the config:
 ```bash
 SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a
 ```
+
+### LLM concurrency and VRAM
+
+Summary, action items, and decisions are independent of each other, so Samuraizer issues all three requests at once (`llmConcurrency`, default `3`).
+
+**Whether that actually runs in parallel is Ollama's decision, not Samuraizer's.** The server processes `OLLAMA_NUM_PARALLEL` requests per model at a time; anything beyond that queues. If it resolves to `1` — which is what Ollama picks when the model already fills most of the GPU — the three requests are served one after another and the wall time is identical to the sequential pipeline. There is no error, no warning, just no speedup.
+
+To check what your server actually allocated, run a stage and inspect the loaded runner:
+
+```bash
+curl -s http://127.0.0.1:11434/api/ps | grep context_length
+```
+
+Samuraizer requests `num_ctx: 16384`. A `context_length` of 16384 means one slot (requests queue); 49152 means three slots (genuine parallelism). To get the latter, start Ollama with `OLLAMA_NUM_PARALLEL=3` — and budget for it: each slot is another full KV cache, so three slots need roughly three times the context memory of one. On a GPU where the model fits but three copies of its context do not, Ollama spills layers to CPU, which is *slower* than running the stages sequentially.
+
+Measured on a 24 GB GPU with `qwen3.8:27b` (18.6 GB resident, `OLLAMA_NUM_PARALLEL` at its default): 24.0s with `llmConcurrency: 3` versus 24.2s with `llmConcurrency: 1` — the fan-out bought nothing, because the server serialized it anyway. Smaller models that leave room for several slots are where the ~2.3× speedup shows up.
+
+If the fan-out hurts rather than helps, turn it off:
+
+```json
+{
+  "llmConcurrency": 1
+}
+```
+
+```bash
+SAMURAIZER_LLM_CONCURRENCY=1 samuraizer process meeting.m4a
+```
+
+Setting it to `1` restores the pre-0.4.3 sequential behavior.
 
 ## 📂 Example output
 

@@ -81,7 +81,10 @@ server.registerTool(
                 language: ctx.config.language,
                 whisperCommand: ctx.config.whisperCommand,
                 ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
-                ...(ctx.config.whisperPrompt !== undefined && ctx.config.whisperPrompt.trim().length > 0 && { initialPrompt: ctx.config.whisperPrompt }),
+                ...(ctx.config.whisperPrompt !== undefined && ctx.config.whisperPrompt.trim().length > 0 && {
+                    initialPrompt: ctx.config.whisperPrompt,
+                    ...(ctx.config.whisperCarryInitialPrompt !== undefined && { carryInitialPrompt: ctx.config.whisperCarryInitialPrompt }),
+                }),
             });
             return {
                 content: [{ type: 'text', text: result.text }],
@@ -213,9 +216,11 @@ server.registerTool(
                 whisperModelPath: ctx.config.whisperModelPath,
                 ...(ctx.config.whisperDevice !== undefined && { whisperDevice: ctx.config.whisperDevice }),
                 ...(ctx.config.whisperPrompt !== undefined && { whisperPrompt: ctx.config.whisperPrompt }),
+                ...(ctx.config.whisperCarryInitialPrompt !== undefined && { whisperCarryInitialPrompt: ctx.config.whisperCarryInitialPrompt }),
                 language: ctx.config.language,
                 ffmpegCommand: ctx.config.ffmpegCommand,
                 ffprobeCommand: ctx.config.ffprobeCommand,
+                llmConcurrency: ctx.config.llmConcurrency,
             });
             return {
                 content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
@@ -233,7 +238,7 @@ server.registerTool(
 server.registerTool(
   'search_meetings',
   {
-    description: 'Full-text search across meetings by summary, name, action items, and decisions. Returns ranked results with snippets.',
+    description: 'Search meetings by summary text, name, action items, and decisions. Transcripts are not searched — use get_meeting for those. Returns ranked results with snippets.',
     inputSchema: {
       query: z.string().min(1).describe('Search query (case-insensitive substring match).'),
       limit: z.number().int().positive().optional().describe('Maximum results to return (default 10).'),
