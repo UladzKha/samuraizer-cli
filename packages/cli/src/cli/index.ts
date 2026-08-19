@@ -8,6 +8,7 @@ import { getConfigFilePath } from "../config/paths.js";
 import { processMeeting } from "../orchestrators/process-meeting.js";
 import { runTool } from "../shared/tool-definition.js";
 import { tools } from "../shared/tool-registry.js";
+import { runDoctor, type DoctorCheck } from "./doctor.js";
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -172,6 +173,32 @@ program
             console.log(JSON.stringify(result, null, 2));
         } catch (error) {
             console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+            process.exitCode = 1;
+        }
+    });
+
+function printDoctorGroup(title: string, checks: DoctorCheck[]): void {
+    console.log(title);
+    for (const check of checks) {
+        console.log(`  ${check.ok ? "✓" : "✗"} ${check.message}`);
+    }
+}
+
+program
+    .command("doctor")
+    .description("Check that Node, ffmpeg, whisper-cli, and Ollama are set up correctly")
+    .action(async () => {
+        const report = await runDoctor();
+
+        printDoctorGroup("Environment", report.environment);
+        console.log("");
+        printDoctorGroup("Config", report.config);
+
+        console.log("");
+        if (report.ok) {
+            console.log("All checks passed. You're ready to run 'samuraizer process'.");
+        } else {
+            console.log("Some checks failed — fix the ✗ items above, then run 'samuraizer doctor' again.");
             process.exitCode = 1;
         }
     });

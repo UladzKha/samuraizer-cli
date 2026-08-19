@@ -33,6 +33,8 @@ ollama serve
 ollama pull qwen2.5:14b
 ```
 
+Whisper transcription needs a downloaded [whisper.cpp](https://github.com/ggerganov/whisper.cpp) `ggml` model file too — grab one (e.g. `ggml-large-v3.bin`) from the whisper.cpp repo; you'll point `whisperModelPath` at it below.
+
 ## 📦 Installation
 
 ```bash
@@ -44,8 +46,26 @@ npm install -g @samuraizer/cli
 ## 🚀 Quick Start
 
 ```bash
+# 1. Check that Node, ffmpeg, whisper-cli, and Ollama are all reachable
+samuraizer doctor
+
+# 2. Create the config file
 samuraizer init
+
+# 3. Edit whisperModelPath and meetingsDir in the printed config path, then re-check
+samuraizer doctor
+
+# 4. Process a recording
 samuraizer process meeting.m4a
+```
+
+`samuraizer doctor` before `init` only checks system dependencies (Node/ffmpeg/ffprobe/whisper-cli/Ollama); it can't check `whisperModelPath` or `meetingsDir` until the config file exists, so run it again after editing the config to confirm those are set correctly.
+
+On success, `process` prints where the results landed:
+
+```
+Done.
+All files saved to: /home/you/.samuraizer/meetings/meeting/2026-08-19T...
 ```
 
 On a 30-minute recording this typically takes 3–5 minutes on Apple Silicon and 8–15 minutes on x86 CPUs, depending on the model.
@@ -73,6 +93,7 @@ samuraizer decisions transcript.txt         # extract decisions
 ### Configuration
 
 ```bash
+samuraizer doctor         # check Node/ffmpeg/whisper-cli/Ollama setup
 samuraizer init           # create default config file
 samuraizer config path    # show config file location
 samuraizer config get     # print resolved config as JSON
