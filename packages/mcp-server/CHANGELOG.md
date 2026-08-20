@@ -1,7 +1,8 @@
 # Changelog
 
-## [0.1.5] - 2026-08-18
+## [0.1.5] - 2026-08-20
 
+- `process_recording` now inherits the CLI's safe `llmConcurrency: 1` default; parallel Ollama analysis requires an explicit configuration override.
 - Pipeline progress from `process_recording` is written to stderr instead of stdout; stdout now remains a valid JSON-RPC-only MCP stdio stream.
 - Release lifecycle now builds the workspace CLI dependency before typechecking MCP, so `prepublishOnly` succeeds from a clean checkout. Builds clear `dist` first so stale generated files cannot leak into the tarball.
 - The published tarball now includes this changelog.

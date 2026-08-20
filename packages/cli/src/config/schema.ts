@@ -22,8 +22,8 @@ export const configSchema = z.object({
     meetingsDir: z.string().min(1).default(path.join(os.homedir(), ".samuraizer", "meetings")),
     // How many LLM stages (summary, action items, decisions) run concurrently.
     // Each in-flight request makes Ollama reserve another num_ctx-sized KV cache slot,
-    // so 3 is ~3x the VRAM of 1. Lower it if the model starts spilling to CPU or OOMs.
-    llmConcurrency: z.number().int().min(1).max(3).default(3),
+    // so parallel execution is opt-in; 1 is the safe default for all hardware.
+    llmConcurrency: z.number().int().min(1).max(3).default(1),
 });
 
 export const partialConfigSchema = configSchema.partial();

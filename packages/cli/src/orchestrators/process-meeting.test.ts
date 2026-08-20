@@ -273,8 +273,13 @@ describe("processMeeting — writes a spec-valid meeting.json", () => {
 });
 
 describe("processMeeting — llmConcurrency", () => {
-    it("runs all three stages at once by default", async () => {
+    it("runs one stage at a time by default", async () => {
         await processMeeting(makeInput());
+        expect(state.llmPeak).toBe(1);
+    });
+
+    it("runs all three stages at once only when explicitly configured", async () => {
+        await processMeeting(makeInput({ llmConcurrency: 3 }));
         expect(state.llmPeak).toBe(3);
     });
 
@@ -304,13 +309,13 @@ describe("processMeeting — llmConcurrency", () => {
     });
 
     it("produces identical artifacts whether stages run concurrently or serially", async () => {
-        const concurrent = await processMeeting(makeInput());
+        const concurrent = await processMeeting(makeInput({ llmConcurrency: 3 }));
         const concurrentSummary = await readJson(concurrent.paths.summaryJsonPath);
 
         await rm(meetingsDir, { recursive: true, force: true });
         await mkdir(meetingsDir, { recursive: true });
 
-        const serial = await processMeeting(makeInput({ llmConcurrency: 1 }));
+        const serial = await processMeeting(makeInput());
         const serialSummary = await readJson(serial.paths.summaryJsonPath);
 
         expect(serialSummary.summary).toBe(concurrentSummary.summary);
