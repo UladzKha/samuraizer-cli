@@ -9,10 +9,17 @@
     ],
     "scripts": {
         "build": "npm run build --workspaces --if-present",
-        "typecheck": "npm run typecheck --workspaces --if-present",
-        "test": "npm run test --workspaces --if-present"
+        "typecheck": "npm run build --workspace @samuraizer/cli && npm run typecheck --workspaces --if-present",
+        "test": "npm run test --workspaces --if-present",
+        "check": "npm run typecheck && npm run test && npm run build",
+        "pack:dry-run": "npm pack --workspace @samuraizer/cli --dry-run && npm pack --workspace @samuraizer/mcp-server --dry-run",
+        "release:check": "npm run check && npm audit && npm run pack:dry-run"
     },
     "engines": {
         "node": ">=20"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.1",
+        "rimraf": "^6.1.3"
     }
 }

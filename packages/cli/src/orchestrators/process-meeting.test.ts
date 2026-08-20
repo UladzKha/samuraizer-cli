@@ -190,6 +190,29 @@ describe("processMeeting — pipeline status (meta.json)", () => {
         expect(meta.status).toBe("meeting_output_generated");
     });
 
+    it("is silent by default and reports progress only through the injected callback", async () => {
+        const progress: string[] = [];
+
+        await processMeeting(makeInput({
+            onProgress: (message) => progress.push(message),
+        }));
+
+        expect(console.log).not.toHaveBeenCalled();
+        expect(progress).toEqual(expect.arrayContaining([
+            "Normalizing audio...",
+            "Transcribing audio...",
+            "Generating summary...",
+            "Extracting action items...",
+            "Extracting decisions...",
+            "Generating report...",
+            "Generating meeting.json...",
+        ]));
+
+        vi.mocked(console.log).mockClear();
+        await processMeeting(makeInput({ force: true }));
+        expect(console.log).not.toHaveBeenCalled();
+    });
+
     it("leaves the status at 'transcribed' when an LLM stage fails mid-run", async () => {
         state.failStage = "decisions";
         const input = makeInput();

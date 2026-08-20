@@ -2,6 +2,11 @@
 
 ## [0.4.3] - 2026-08-18
 
+- Pipeline progress is now delivered through an optional callback instead of writing directly to stdout, so embedders such as the MCP stdio server cannot have their protocol stream corrupted.
+- Release checks now run the CLI test suite before publishing, and clean-checkout monorepo typechecking builds the CLI declarations before checking MCP. Builds clear `dist` first so stale generated files cannot leak into the tarball.
+- Updated development dependencies to patched releases; `npm audit` now reports zero known vulnerabilities.
+- Fixed the README model examples so the generated config, installation command, and out-of-memory guidance consistently use the documented Qwen 2.5 models.
+
 - Added `whisperPrompt` config option: initial prompt / hotwords passed to whisper-cli (`--prompt`) to bias decoding toward domain terms, participant names, or acronyms. Set via `SAMURAIZER_WHISPER_PROMPT` env var. When unset, behavior is unchanged.
 - Added `whisperCarryInitialPrompt` config option (default `false`): maps to whisper-cli `--carry-initial-prompt`. whisper.cpp applies the initial prompt to the first decoding window only, so on a long recording hotword biasing fades after the opening minutes; enabling this re-applies the prompt to every window. Set via `SAMURAIZER_WHISPER_CARRY_INITIAL_PROMPT`.
 

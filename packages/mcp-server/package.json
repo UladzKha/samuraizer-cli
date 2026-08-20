@@ -16,18 +16,19 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
+    "prepublishOnly": "npm run build --workspace @samuraizer/cli && npm run typecheck && npm run test && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "postbuild": "chmod +x dist/index.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@samuraizer/cli": "^0.4.3",
     "memnex-spec": "^0.2.0",
     "zod": "^4.3.6"
@@ -35,6 +36,6 @@
   "devDependencies": {
     "@types/node": "^25.6.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.11"
   }
 }

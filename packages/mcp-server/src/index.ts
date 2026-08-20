@@ -221,6 +221,7 @@ server.registerTool(
                 ffmpegCommand: ctx.config.ffmpegCommand,
                 ffprobeCommand: ctx.config.ffprobeCommand,
                 llmConcurrency: ctx.config.llmConcurrency,
+                onProgress: (message) => process.stderr.write(`[samuraizer] ${message}\n`),
             });
             return {
                 content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
