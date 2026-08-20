@@ -20,6 +20,6 @@ export const configTemplate: SamuraizerConfig = {
     language: "auto",
     ffmpegCommand: "ffmpeg",
     ffprobeCommand: "ffprobe",
-    // Concurrent LLM stages (1-3). Lower this if Ollama runs out of VRAM.
-    llmConcurrency: 3,
+    // Concurrent LLM stages (1-3). Values above 1 are an explicit performance opt-in.
+    llmConcurrency: 1,
 };

@@ -36,7 +36,7 @@ export type ProcessMeetingInput = {
     language: string;
     ffmpegCommand: string;
     ffprobeCommand: string;
-    /** Max LLM stages in flight at once (1-3). Defaults to 3. */
+    /** Max LLM stages in flight at once (1-3). Defaults to 1. */
     llmConcurrency?: number;
     force?: boolean;
     /** Receives human-readable pipeline progress. Defaults to silent. */
@@ -223,7 +223,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     const [summaryResult, actionItemsResult, decisionsResult] = await runWithConcurrency(
         [summarize, extractActionItems, extractDecisions] as const,
-        input.llmConcurrency ?? 3,
+        input.llmConcurrency ?? 1,
     );
 
     meta.output.summaryTextPath = paths.summaryTextPath;

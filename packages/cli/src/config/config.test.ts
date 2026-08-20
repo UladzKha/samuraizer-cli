@@ -98,7 +98,7 @@ describe("initConfig", () => {
         expect(written.whisperPrompt).toBe("");
         expect(written.whisperDevice).toBe("");
         expect(written.whisperCarryInitialPrompt).toBe(false);
-        expect(written.llmConcurrency).toBe(3);
+        expect(written.llmConcurrency).toBe(1);
     });
 
     it("writes a config that validates against the schema", async () => {
@@ -126,7 +126,7 @@ describe("loadConfig — defaults and back-compat", () => {
         await writeConfig(MINIMAL_CONFIG);
         const config = await loadConfig();
 
-        expect(config.llmConcurrency).toBe(3);
+        expect(config.llmConcurrency).toBe(1);
         expect(config.whisperPrompt).toBeUndefined();
         expect(config.whisperCarryInitialPrompt).toBeUndefined();
     });
@@ -137,7 +137,7 @@ describe("loadConfig — defaults and back-compat", () => {
 
         expect(config.whisperPrompt).toBe("");
         expect(config.whisperCarryInitialPrompt).toBe(false);
-        expect(config.llmConcurrency).toBe(3);
+        expect(config.llmConcurrency).toBe(1);
     });
 
     it("rejects an out-of-range llmConcurrency from the config file", async () => {

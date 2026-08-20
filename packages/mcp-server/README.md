@@ -135,6 +135,8 @@ All config fields accept env-var overrides, useful for running the server in dif
 
 Env vars override values from the config file. Booleans accept `1/0`, `true/false`, `yes/no`, or `on/off`.
 
+
+`llmConcurrency` defaults to `1`, so `process_recording` runs summary, action-item, and decision extraction sequentially on all hardware. Values `2` and `3` explicitly opt into parallel Ollama requests and require enough spare VRAM for additional KV-cache slots.
 ## Tools
 
 ### Query mode

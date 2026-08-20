@@ -141,7 +141,7 @@ Samuraizer uses a global JSON config file.
 - **whisperCarryInitialPrompt** *(optional, default `false`)* — Re-apply `whisperPrompt` to every decoding window (`--carry-initial-prompt`). By default whisper.cpp uses the initial prompt for the first window only, so on a long recording the hotword bias fades after the opening minutes. Enable this to keep it active throughout; the trade-off is that the prompt occupies context in every window and, if it is long or unnatural, can leak into the transcript.
 - **ffmpegCommand** — Command used for audio processing
 - **ffprobeCommand** — Command used for audio inspection
-- **llmConcurrency** *(optional, default `3`, range `1-3`)* — How many of the three LLM stages (summary, action items, decisions) run at the same time. See [LLM concurrency and VRAM](#llm-concurrency-and-vram).
+- **llmConcurrency** *(optional, default `1`, range `1-3`)* — How many of the three LLM stages (summary, action items, decisions) may run at the same time. Parallel execution is opt-in; see [LLM concurrency and VRAM](#llm-concurrency-and-vram).
 
 Every config field can also be overridden with an environment variable, e.g. `SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a`. Booleans accept `1/0`, `true/false`, `yes/no`, or `on/off`.
 
@@ -163,9 +163,21 @@ SAMURAIZER_WHISPER_DEVICE=1 samuraizer process meeting.m4a
 
 ### LLM concurrency and VRAM
 
-Summary, action items, and decisions are independent of each other, so Samuraizer issues all three requests at once (`llmConcurrency`, default `3`).
+Summary, action items, and decisions are independent, but Samuraizer runs them **sequentially by default** (`llmConcurrency: 1`). This is the safe setting for laptops, integrated graphics, CPU-only systems, and GPUs where the model already consumes most of the available VRAM.
 
-**Whether that actually runs in parallel is Ollama's decision, not Samuraizer's.** The server processes `OLLAMA_NUM_PARALLEL` requests per model at a time; anything beyond that queues. If it resolves to `1` — which is what Ollama picks when the model already fills most of the GPU — the three requests are served one after another and the wall time is identical to the sequential pipeline. There is no error, no warning, just no speedup.
+On hardware with enough spare VRAM, you can explicitly allow two or three stages at once:
+
+```json
+{
+  "llmConcurrency": 3
+}
+```
+
+```bash
+SAMURAIZER_LLM_CONCURRENCY=3 samuraizer process meeting.m4a
+```
+
+**Whether that actually runs in parallel is Ollama's decision, not Samuraizer's.** The server processes `OLLAMA_NUM_PARALLEL` requests per model at a time; anything beyond that queues. If it resolves to `1`, requests are served one after another and there is no speedup.
 
 To check what your server actually allocated, run a stage and inspect the loaded runner:
 
@@ -173,23 +185,11 @@ To check what your server actually allocated, run a stage and inspect the loaded
 curl -s http://127.0.0.1:11434/api/ps | grep context_length
 ```
 
-Samuraizer requests `num_ctx: 16384`. A `context_length` of 16384 means one slot (requests queue); 49152 means three slots (genuine parallelism). To get the latter, start Ollama with `OLLAMA_NUM_PARALLEL=3` — and budget for it: each slot is another full KV cache, so three slots need roughly three times the context memory of one. On a GPU where the model fits but three copies of its context do not, Ollama spills layers to CPU, which is *slower* than running the stages sequentially.
+Samuraizer requests `num_ctx: 16384`. A `context_length` of 16384 means one slot; 49152 means three slots. To get three genuine slots, start Ollama with `OLLAMA_NUM_PARALLEL=3` — and budget for it: each slot adds another full KV cache, so three slots need roughly three times the context memory of one. If they do not fit, Ollama may spill layers to CPU or run out of memory.
 
-Measured on a 24 GB GPU with `qwen3.8:27b` (18.6 GB resident, `OLLAMA_NUM_PARALLEL` at its default): 24.0s with `llmConcurrency: 3` versus 24.2s with `llmConcurrency: 1` — the fan-out bought nothing, because the server serialized it anyway. Smaller models that leave room for several slots are where the ~2.3× speedup shows up.
+Measured on a 24 GB GPU with `qwen3.8:27b` (18.6 GB resident, `OLLAMA_NUM_PARALLEL` at its default): 24.0s with `llmConcurrency: 3` versus 24.2s with `llmConcurrency: 1` — no gain because the server serialized the requests. Smaller models that leave room for several slots are where the measured ~2.3× speedup appeared.
 
-If the fan-out hurts rather than helps, turn it off:
-
-```json
-{
-  "llmConcurrency": 1
-}
-```
-
-```bash
-SAMURAIZER_LLM_CONCURRENCY=1 samuraizer process meeting.m4a
-```
-
-Setting it to `1` restores the pre-0.4.3 sequential behavior.
+Leave the setting at `1` unless you have verified both spare VRAM and multiple Ollama runner slots. Values `2` and `3` are performance opt-ins, not recommended defaults.
 
 ## 📂 Example output
 

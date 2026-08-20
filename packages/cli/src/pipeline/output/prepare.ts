@@ -63,7 +63,7 @@ export type RunMeta = {
     /**
      * Last pipeline step that completed and was persisted.
      *
-     * The three LLM stages run concurrently and are saved as one step, so
+     * The three LLM stages run as one bounded group and are saved as one step, so
      * "decisions_extracted" means all of summary, action items, and decisions
      * are on disk. The former per-stage values ("summarized",
      * "action_items_extracted") no longer occur and were removed rather than
