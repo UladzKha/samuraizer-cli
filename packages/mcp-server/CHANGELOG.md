@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.6] - 2026-08-20
+
+- Added the `mcpName` field (`io.github.UladzKha/samuraizer`) to `package.json`, which the MCP registry requires to verify that this npm package belongs to the registered server.
+
 ## [0.1.5] - 2026-08-20
 
 - `process_recording` now inherits the CLI's safe `llmConcurrency: 1` default; parallel Ollama analysis requires an explicit configuration override.
