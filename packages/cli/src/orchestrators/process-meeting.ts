@@ -39,6 +39,8 @@ export type ProcessMeetingInput = {
     /** Max LLM stages in flight at once (1-3). Defaults to 3. */
     llmConcurrency?: number;
     force?: boolean;
+    /** Receives human-readable pipeline progress. Defaults to silent. */
+    onProgress?: (message: string) => void;
 };
 
 type SummaryArtifact = {
@@ -76,6 +78,7 @@ function readPackageVersion(): string {
 }
 
 export async function processMeeting(input: ProcessMeetingInput): Promise<ProcessMeetingResult> {
+    const progress = input.onProgress ?? (() => {});
     const validatedFile = await validateInputFile(input.inputPath);
 
     await ensureFfmpeg(input.ffmpegCommand);
@@ -99,10 +102,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     // Normalize audio
     let normalized: { normalizedAudioPath: string };
     if (!input.force && await fileExists(paths.normalizedAudioPath)) {
-        console.log("Skipping normalization (cached).");
+        progress("Skipping normalization (cached).");
         normalized = { normalizedAudioPath: paths.normalizedAudioPath };
     } else {
-        console.log("Normalizing audio...");
+        progress("Normalizing audio...");
         normalized = await runTool(tools.normalize_audio, {
             inputPath: validatedFile.resolvedPath,
             outputPath: paths.normalizedAudioPath,
@@ -117,11 +120,11 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     // Transcribe
     let transcription: { text: string; segments: TranscriptSegment[]; sourceAudioPath: string; transcriptPath: string; language?: string };
     if (!input.force && await fileExists(paths.transcriptJsonPath)) {
-        console.log("Skipping transcription (cached).");
+        progress("Skipping transcription (cached).");
         const cached = await readJson<{ text: string; segments: TranscriptSegment[]; sourceAudioPath: string; language?: string }>(paths.transcriptJsonPath);
         transcription = { ...cached, transcriptPath: paths.transcriptTextPath };
     } else {
-        console.log("Transcribing audio...");
+        progress("Transcribing audio...");
         transcription = await runTool(tools.transcribe_audio, {
             audioPath: normalized.normalizedAudioPath,
             runDir: paths.runDir,
@@ -169,10 +172,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     const summarize = async (): Promise<SummaryArtifact> => {
         if (!input.force && await fileExists(paths.summaryJsonPath)) {
-            console.log("Skipping summary (cached).");
+            progress("Skipping summary (cached).");
             return readJson<SummaryArtifact>(paths.summaryJsonPath);
         }
-        console.log("Generating summary...");
+        progress("Generating summary...");
         const { summary } = await runTool(tools.summarize_transcript, {
             transcriptText: transcription.text,
             model: input.model,
@@ -186,10 +189,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     const extractActionItems = async (): Promise<ActionItemsArtifact> => {
         if (!input.force && await fileExists(paths.actionItemsJsonPath)) {
-            console.log("Skipping action items (cached).");
+            progress("Skipping action items (cached).");
             return readJson<ActionItemsArtifact>(paths.actionItemsJsonPath);
         }
-        console.log("Extracting action items...");
+        progress("Extracting action items...");
         const { items: actionItems } = await runTool(tools.extract_action_items, {
             transcriptText: transcription.text,
             model: input.model,
@@ -203,10 +206,10 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     const extractDecisions = async (): Promise<DecisionsArtifact> => {
         if (!input.force && await fileExists(paths.decisionsJsonPath)) {
-            console.log("Skipping decisions (cached).");
+            progress("Skipping decisions (cached).");
             return readJson<DecisionsArtifact>(paths.decisionsJsonPath);
         }
-        console.log("Extracting decisions...");
+        progress("Extracting decisions...");
         const { items: decisions } = await runTool(tools.extract_decisions, {
             transcriptText: transcription.text,
             model: input.model,
@@ -252,9 +255,9 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
 
     // Generate report
     if (!input.force && await fileExists(paths.reportMarkdownPath)) {
-        console.log("Skipping report (cached).");
+        progress("Skipping report (cached).");
     } else {
-        console.log("Generating report...");
+        progress("Generating report...");
         await generateReport({
             reportPath: paths.reportMarkdownPath,
             meetingTitle: validatedFile.baseName,
@@ -275,7 +278,7 @@ export async function processMeeting(input: ProcessMeetingInput): Promise<Proces
     await saveMeta(paths, meta);
 
     // Generate meeting.json (schema-validated)
-    console.log("Generating meeting.json...");
+    progress("Generating meeting.json...");
 
     // Snapshot pipeline configuration for provenance
     meta.pipelineConfig = {

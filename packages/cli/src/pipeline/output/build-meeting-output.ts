@@ -18,7 +18,7 @@ export type BuildMeetingOutputInput = {
 };
 
 /**
- * Build a meeting-output document conforming to the memnex specification v0.1.
+ * Build a meeting-output document conforming to the memnex specification v0.2.
  *
  * Pure function: no I/O, no side effects. The caller is responsible for
  * computing the source SHA-256, reading the producer version, validating

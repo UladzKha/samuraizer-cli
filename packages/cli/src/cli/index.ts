@@ -83,6 +83,7 @@ program
                 ffprobeCommand: config.ffprobeCommand,
                 llmConcurrency: config.llmConcurrency,
                 force: options.force,
+                onProgress: (message) => console.log(message),
             });
 
             console.log("\nDone.");

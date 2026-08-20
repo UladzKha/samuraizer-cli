@@ -121,7 +121,7 @@ Samuraizer uses a global JSON config file.
 ```json
 
 {
-  "model": "qwen3.5:14b",
+  "model": "qwen2.5:14b",
   "ollamaBaseUrl": "http://127.0.0.1:11434",
   "whisperCommand": "whisper-cli",
   "whisperModelPath": "/absolute/path/to/ggml-model.bin",
@@ -271,7 +271,7 @@ Update `ollamaBaseUrl` in your config:
 Switch to a smaller model:
 
 ```bash
-ollama pull qwen3.5:14b
+ollama pull qwen2.5:7b
 ```
 
 Then update `model` in your config to `qwen2.5:7b` (or `qwen2.5:3b` on machines with 8 GB RAM).

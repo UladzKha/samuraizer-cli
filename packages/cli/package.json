@@ -8,12 +8,12 @@
   "scripts": {
     "dev": "tsx src/cli/index.ts",
     "process": "tsx src/cli/index.ts process",
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepack": "npm run build",
-    "prepublishOnly": "npm run typecheck && npm run build"
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
   },
   "exports": {
     "./shared/tool-definition": {
@@ -78,8 +78,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.11"
   }
 }

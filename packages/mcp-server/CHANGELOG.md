@@ -2,6 +2,11 @@
 
 ## [0.1.5] - 2026-08-18
 
+- Pipeline progress from `process_recording` is written to stderr instead of stdout; stdout now remains a valid JSON-RPC-only MCP stdio stream.
+- Release lifecycle now builds the workspace CLI dependency before typechecking MCP, so `prepublishOnly` succeeds from a clean checkout. Builds clear `dist` first so stale generated files cannot leak into the tarball.
+- The published tarball now includes this changelog.
+- Updated `@modelcontextprotocol/sdk` and transitive dependencies to patched releases; `npm audit` now reports zero known vulnerabilities.
+
 - **New `search_meetings` tool:** searches processed meetings by summary text, name, action items, and decisions. Returns ranked results with a snippet around the best match. Useful for agents that need to find a specific meeting without enumerating all of them. Transcripts are not searched — `get_meeting` returns those.
   - The summary is searched in full. An earlier iteration of this tool matched only `summary_preview`, the first 200 characters, so a term further into the summary produced a confident "No meetings found".
 - **`MeetingsStore.all()`:** new store method returning every meeting as a (summary, full document) pair in one directory scan. `search_meetings` uses it instead of `list()` plus one `get()` per meeting, which would rescan the meetings directory once per result.
