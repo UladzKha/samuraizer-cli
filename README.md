@@ -13,6 +13,12 @@ Turn meeting recordings into transcripts, summaries, action items, and decisions
 - **Model-agnostic.** Works with any Ollama-compatible LLM — pick what fits your hardware.
 - **Free.** No subscriptions, no per-minute pricing.
 
+## Portable output with memnex
+
+Samuraizer writes meeting results in the portable [memnex v0.2](https://github.com/UladzKha/memnex) format. This lets another meeting app, local AI agent, or MCP server consume the same transcript, summary, action items, decisions, and provenance without learning a Samuraizer-specific JSON shape.
+
+To verify a memnex document in under a minute, follow the [memnex quickstart](https://github.com/UladzKha/memnex#try-it-in-60-seconds). It installs the validator and checks a real v0.2 example end to end.
+
 ## 📦 Packages
 
 This is a monorepo. Samuraizer is published as two npm packages, each with its own README and changelog:
