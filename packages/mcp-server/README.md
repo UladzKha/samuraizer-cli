@@ -9,6 +9,12 @@ The server provides two modes:
 
 Everything stays local. The server reads meetings from a directory on your machine and never sends data to any external service.
 
+## Portable meeting data for agents
+
+Every meeting returned by this server is a [memnex v0.2](https://github.com/UladzKha/memnex) document. That means an MCP client can consume the same transcript, summary, action items, decisions, and provenance from Samuraizer or another conforming meeting tool.
+
+See the [memnex quickstart](https://github.com/UladzKha/memnex#try-it-in-60-seconds) to validate a document and learn the portable output format.
+
 ## Prerequisites
 
 This package depends on `@samuraizer/cli` for its config and pipeline. Before using the MCP server, install and initialize the CLI:
