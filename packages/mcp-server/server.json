@@ -1,20 +1,32 @@
 {
     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
     "name": "io.github.UladzKha/samuraizer",
+    "title": "Samuraizer",
     "description": "Local MCP server for meeting transcripts, summaries, action items & decisions — no cloud.",
     "repository": {
         "url": "https://github.com/UladzKha/samuraizer-cli",
-        "source": "github"
+        "source": "github",
+        "id": "1185664552",
+        "subfolder": "packages/mcp-server"
     },
-    "version": "0.1.6",
+    "version": "0.1.7",
     "packages": [
         {
             "registryType": "npm",
+            "registryBaseUrl": "https://registry.npmjs.org",
             "identifier": "@samuraizer/mcp-server",
-            "version": "0.1.6",
+            "version": "0.1.7",
             "transport": {
                 "type": "stdio"
-            }
+            },
+            "environmentVariables": [
+                {
+                    "name": "SAMURAIZER_MEETINGS_DIR",
+                    "description": "Directory containing processed meetings, overriding meetingsDir from the Samuraizer config file. A config file is still required — run 'samuraizer init' first.",
+                    "isRequired": false,
+                    "format": "filepath"
+                }
+            ]
         }
     ]
 }

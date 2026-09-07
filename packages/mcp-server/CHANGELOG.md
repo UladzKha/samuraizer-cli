@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.7] - 2026-09-07
+
+- The npm manifest now carries `description`, `keywords`, `repository`, `homepage`, `bugs`, and `author`. The package page previously showed no description at all, and npm search had almost nothing to rank the package on. `repository.directory` points at the package inside the monorepo rather than the repository root, so the npm page links to this directory and not to the top of the tree.
+- `server.json` gained `title`, `repository.subfolder`, `repository.id`, and `registryBaseUrl`, and now declares the `SAMURAIZER_MEETINGS_DIR` environment variable. MCP clients can prompt for the meetings directory during setup rather than leaving it to be discovered from the config file afterwards. `repository.id` is the GitHub numeric repository ID, which lets the registry detect a repository that was deleted and recreated under the same name.
+- Publishing to the official MCP registry now runs from a `workflow_dispatch` GitHub Action authenticated by OIDC, replacing the manual `mcp-publisher` invocation. npm publishing stays manual, and must still happen first: the registry verifies that the npm package exists at the given version and carries a matching `mcpName`.
+- The package consistency test now asserts that the version in `package.json` matches both version fields in `server.json`, and that `mcpName` matches the registry server name. A mismatch previously surfaced only when the registry rejected the publish, by which point the npm release had already gone out and the version number was spent.
+- The README now opens with a one-line description of what the server does and a list of every tool it exposes, so the first screen answers what the package is rather than how to install it.
+- Transitive dependencies in the workspace lockfile were updated to patched releases; `npm audit` reports zero known vulnerabilities again. No dependency range changed, so the published package is unaffected.
+
 ## [0.1.6] - 2026-08-20
 
 - Added the `mcpName` field (`io.github.UladzKha/samuraizer`) to `package.json`, which the MCP registry requires to verify that this npm package belongs to the registered server.

@@ -1,25 +1,11 @@
 {
   "name": "@samuraizer/mcp-server",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "mcpName": "io.github.UladzKha/samuraizer",
   "type": "module",
-  "license": "MIT",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    }
-  },
   "bin": {
     "samuraizer-mcp": "dist/index.js"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md"
-  ],
   "scripts": {
     "build": "rimraf dist && tsc",
     "typecheck": "tsc --noEmit",
@@ -27,6 +13,52 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "postbuild": "chmod +x dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "claude",
+    "meeting-notes",
+    "meeting-transcripts",
+    "transcription",
+    "summarization",
+    "action-items",
+    "whisper",
+    "ollama",
+    "local-llm",
+    "self-hosted",
+    "privacy",
+    "memnex"
+  ],
+  "license": "MIT",
+  "description": "Local-first MCP server for meeting recordings: transcripts, summaries, action items, and decisions. Runs on your machine with whisper.cpp and Ollama — no cloud.",
+  "author": "Uladz Kha <UladzKha@users.noreply.github.com>",
+  "funding": "https://github.com/sponsors/UladzKha",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UladzKha/samuraizer-cli.git",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://github.com/UladzKha/samuraizer-cli/tree/main/packages/mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/UladzKha/samuraizer-cli/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

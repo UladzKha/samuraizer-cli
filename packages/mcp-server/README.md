@@ -1,6 +1,23 @@
 # @samuraizer/mcp-server
 
+Local-first MCP server that gives AI agents access to your meeting recordings — transcripts, summaries, action items, and decisions — without sending anything to the cloud.
+
 [Model Context Protocol](https://modelcontextprotocol.io/) server for [Samuraizer](https://github.com/UladzKha/samuraizer-cli) — exposes processed meetings to AI agents (Claude Desktop, Claude Code, MCP Inspector, etc.) over stdio.
+
+## Tools at a glance
+
+- **`normalize_audio`** — Normalize an audio file to 16kHz mono PCM WAV format required by Whisper.
+- **`transcribe_audio`** — Transcribe an audio file using whisper.cpp. Returns the transcript text.
+- **`summarize_transcript`** — Generate a concise meeting summary from transcript text.
+- **`extract_action_items`** — Extract action items from a meeting transcript. Returns a JSON list of tasks with owner and due date.
+- **`extract_decisions`** — Extract confirmed decisions from a meeting transcript. Returns a JSON list of decisions.
+- **`process_recording`** — Run the full Samuraizer pipeline on an audio file. Returns summary, action items, decisions, and output file paths.
+- **`search_meetings`** — Search meetings by summary text, name, action items, and decisions. Transcripts are not searched — use `get_meeting` for those. Returns ranked results with snippets.
+- **`list_meetings`** — List all processed meetings, sorted newest first. Optionally limit results.
+- **`get_meeting`** — Retrieve the full processed output for a specific meeting by id.
+- **`meeting://{id}`** *(resource)* — A single processed meeting, accessible by its ULID.
+
+Full input and output details for each tool are in [Tools](#tools) below.
 
 The server provides two modes:
 
@@ -137,6 +154,7 @@ Env vars override values from the config file. Booleans accept `1/0`, `true/fals
 
 
 `llmConcurrency` defaults to `1`, so `process_recording` runs summary, action-item, and decision extraction sequentially on all hardware. Values `2` and `3` explicitly opt into parallel Ollama requests and require enough spare VRAM for additional KV-cache slots.
+
 ## Tools
 
 ### Query mode
