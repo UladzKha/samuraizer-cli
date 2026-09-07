@@ -40,3 +40,7 @@ Thumbs.db
 # Claude Code local settings
 .claude
 CLAUDE.md
+
+# MCPB bundle artifacts
+packages/*/bundle/
+*.mcpb
